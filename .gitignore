@@ -1,8 +1,5 @@
 .gradle
 build/
-out/
-www/public
-*.class
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/

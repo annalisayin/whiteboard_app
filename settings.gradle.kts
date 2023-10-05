@@ -1,12 +1,14 @@
 pluginManagement {
     repositories {
-        mavenCentral()
         gradlePluginPortal()
+        maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
+    }
+
+    plugins {
+        kotlin("jvm").version(extra["kotlin_version"] as String)
+        id("org.jetbrains.compose").version(extra["compose_version"] as String)
     }
 }
 
-plugins {
-    id("org.gradle.toolchains.foojay-resolver-convention") version "0.5.0"
-}
-
-rootProject.name = "collaborative_whiteboard"
+rootProject.name = "cs346-project"
+include("application", "models", "server")
