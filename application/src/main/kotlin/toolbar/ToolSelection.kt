@@ -21,28 +21,14 @@ fun ToolSelection(
     isInTextMode: MutableState<Boolean>,
     currentText: MutableState<String>
 ) {
-    var sketchStatus by remember { mutableStateOf("Sketch not in use") }
     MaterialTheme {
         Text("TOOL BAR")
-
         Spacer(modifier = Modifier.height(20.dp))
-
         Row(
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Button(onClick = {
-                if (!useSketch.value) {
-                    sketchStatus = "Sketch in use!"
-                    useSketch.value = true
-                } else {
-                    sketchStatus = "Sketch not in use"
-                    useSketch.value = false
-                }
-            }) {
-                Text(sketchStatus)
-            }
-            Brush_tool(inUsedColor, brushSize)
+            Brush_tool(inUsedColor, brushSize, useSketch)
             Shapes_tool { shape ->
                 shapesOnCanvas.add(shape) // Add the shape to the canvas
             }

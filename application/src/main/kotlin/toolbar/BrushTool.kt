@@ -85,7 +85,7 @@ fun ColorPicker(inUsedColor: MutableState<Color>) {
 }
 
 @Composable
-fun Brush_tool(inUsedColor: MutableState<Color>, brushSize: MutableState<Int>) {
+fun Brush_tool(inUsedColor: MutableState<Color>, brushSize: MutableState<Int>, useSketch: MutableState<Boolean>) {
     val openDialog = remember { mutableStateOf(false) }
     val buttonTitle = remember {
         mutableStateOf("Show Pop Up")
@@ -95,8 +95,12 @@ fun Brush_tool(inUsedColor: MutableState<Color>, brushSize: MutableState<Int>) {
                 .padding(30.dp),
             onClick = {
                 openDialog.value = !openDialog.value
-            }
-        ) {
+                if (!useSketch.value) {
+                    useSketch.value = true
+                } else {
+                    useSketch.value = false
+                }
+            }) {
             Icon(Icons.Filled.Edit, contentDescription = "Localized description")
         }
         Box {
