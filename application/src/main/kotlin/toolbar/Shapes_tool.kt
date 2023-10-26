@@ -20,10 +20,7 @@ import androidx.compose.material.icons.outlined.Close
 import androidx.compose.ui.window.PopupProperties
 import data.Shape
 
-import data.ShapeType
 import data.Rectangle
-import data.Circle
-import data.Triangle
 
 
 @Composable
@@ -34,7 +31,6 @@ fun Shapes_tool( addShapeToCanvas: (Shape) -> Unit ) {
         mutableStateOf("Show Pop Up")
     }
     // Define a variable to track the selected shape type
-    var selectedShape by remember { mutableStateOf<ShapeType?>(null) }
     Button(
         modifier = Modifier
             .padding(10.dp),
@@ -62,20 +58,20 @@ fun Shapes_tool( addShapeToCanvas: (Shape) -> Unit ) {
                             Button(
                                 modifier = Modifier
                                     .padding(10.dp),
-                                onClick = { selectedShape = ShapeType.Rectangle }
+                                onClick = {}
                             ) {
                                 Icon(Icons.Default.MailOutline, contentDescription = "Create Rectangle")
                             }
                             Button(
                                 modifier = Modifier
                                     .padding(10.dp),
-                                onClick = { selectedShape = ShapeType.Circle }
+                                onClick = { }
                             ) {
                                 Icon(Icons.Default.CheckCircle, contentDescription = "Create Circle")
                             }
                             Button(
                                 modifier = Modifier.padding(10.dp),
-                                onClick = { selectedShape = ShapeType.Triangle }
+                                onClick = { }
                             ) {
                                 Icon(Icons.Default.PlayArrow, contentDescription = "Create Triangle")
                             }
@@ -84,30 +80,6 @@ fun Shapes_tool( addShapeToCanvas: (Shape) -> Unit ) {
                     }
                 }
             }
-        }
-    }
-
-    selectedShape?.let { shapeType ->
-        val newShape = when (shapeType) {
-            ShapeType.Rectangle -> {
-                // Create a rectangle shape
-                // Modify this to create shapes as needed
-                Shape(type = shapeType, color = Color.Black, rect = Rectangle(100f, 100f, 200f, 150f))
-            }
-            ShapeType.Circle -> {
-                // Create a circle shape
-                // Modify this to create circles as needed
-                Shape(type = shapeType, color = Color.Black, circle = Circle(150f, 150f, 50f))
-            }
-            ShapeType.Triangle -> {
-                // Create a circle shape
-                // Modify this to create circles as needed
-                Shape(type = shapeType, color = Color.Black, triangle = Triangle(150f, 50f, 100f, 150f, 200f, 150f))
-            }
-            else -> null
-        }
-        if (newShape != null) {
-            addShapeToCanvas(newShape)
         }
     }
 }
