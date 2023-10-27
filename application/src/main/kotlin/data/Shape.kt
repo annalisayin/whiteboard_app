@@ -6,12 +6,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 
-abstract class Shape() {
+abstract class Shape(var offset: Offset) {
     @Composable
-    abstract fun onDraw()
-    abstract val x: Double
-    abstract val y: Double
-    abstract val w: Double
-    abstract val h: Double
+    abstract fun draw()
     val color: Color = Color.Black
 }

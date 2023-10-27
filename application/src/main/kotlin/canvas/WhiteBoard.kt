@@ -31,16 +31,26 @@ fun WhiteBoard() {
     val inUsedColor = remember { mutableStateOf(Color.Black)}
     val brushSize = remember { mutableStateOf(1)}
     val shapesOnCanvas by remember { mutableStateOf(mutableStateListOf<Shape>()) }
-    val textBoxesOnCanvas = remember { mutableStateListOf<TextBox>() }
-    var isInTextMode = remember { mutableStateOf(false)}
+    val shapeList = remember { mutableStateListOf<Shape>()}
+    val isInTextMode = remember { mutableStateOf(false)}
     var currentText = remember {mutableStateOf("hello")}
-    val textMeasurer = rememberTextMeasurer()
     ToolSelection(sketchStatus, inUsedColor, brushSize, shapesOnCanvas = shapesOnCanvas, isInTextMode, currentText)
+
+    // box acting as the real canvas, encompassing all composables and elements drawn
     Box(modifier = Modifier
         .background(Color.Blue)
-        .fillMaxSize() , contentAlignment = Alignment.Center
+        .fillMaxSize()
+        .pointerInput(Unit) {
+            detectTapGestures(
+                onTap = { tapOffset ->
+                    val newRec = Rectangle(offset = tapOffset)
+                    shapeList.add(newRec)
+                }
+            )
+        }, //contentAlignment = Alignment.TopStart
+
     ) {
-        Rectangle().onDraw()
+        // "fake" canvas just used for pen tool
         Canvas(modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
@@ -54,24 +64,10 @@ fun WhiteBoard() {
                             color = inUsedColor.value,
                             width = brushSize.value.dp,
                         )
-
                         sketches.add(sketch)
                     }
                 }
 
-            }
-            .pointerInput(Unit) {
-                detectTapGestures(
-                    onTap = { tapOffset ->
-                        println(isInTextMode.value)
-                        println(tapOffset.x.toString() + " " + tapOffset.y.toString())
-                        if (isInTextMode.value) {
-                            val newTextBox = TextBox(currentText.value, tapOffset)
-                            textBoxesOnCanvas.add(newTextBox)
-                            println(textBoxesOnCanvas[textBoxesOnCanvas.size - 1])
-                        }
-                    }
-                )
             }
         )
         {
@@ -83,9 +79,7 @@ fun WhiteBoard() {
                     strokeWidth = sketch.width.toPx(),
                 )
             }
-            textBoxesOnCanvas.forEach { textBox ->
-                drawText(textMeasurer, textBox.text, topLeft = textBox.offset)
-            }
         }
+        shapeList.forEach { shape -> shape.draw() }
     }
 }
