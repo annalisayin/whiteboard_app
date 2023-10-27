@@ -10,16 +10,11 @@ import androidx.compose.ui.window.Popup
 import androidx.compose.material.Icon
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Text
 import androidx.compose.material.icons.*
 import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.outlined.AccountBox
-import androidx.compose.material.icons.outlined.Close
 import androidx.compose.ui.window.PopupProperties
 import data.Shape
-
 import data.ShapeType
 import data.Rectangle
 import data.Circle
