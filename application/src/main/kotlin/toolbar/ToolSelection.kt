@@ -30,17 +30,6 @@ fun ToolSelection(
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Button(onClick = {
-                if (!useSketch.value) {
-                    sketchStatus = "Sketch in use!"
-                    useSketch.value = true
-                } else {
-                    sketchStatus = "Sketch not in use"
-                    useSketch.value = false
-                }
-            }) {
-                Text(sketchStatus)
-            }
             Shapes_tool(rectangleSelected, circleSelected, triangleSelected)
             Brush_tool(inUsedColor, brushSize, useSketch)
             Text_tool(isInTextMode, currentText)
