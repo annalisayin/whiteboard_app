@@ -17,8 +17,10 @@ fun ToolSelection(
     useSketch: MutableState<Boolean>,
     inUsedColor: MutableState<Color>,
     brushSize: MutableState<Int>,
-    shapesOnCanvas: MutableList<Shape>,
     isInTextMode: MutableState<Boolean>,
+    rectangleSelected: MutableState<Boolean>,
+    circleSelected: MutableState<Boolean>,
+    triangleSelected: MutableState<Boolean>,
     currentText: MutableState<String>
 ) {
     var sketchStatus by remember { mutableStateOf("Sketch not in use") }
@@ -43,9 +45,7 @@ fun ToolSelection(
                 Text(sketchStatus)
             }
             Brush_tool(inUsedColor, brushSize)
-            Shapes_tool { shape ->
-                shapesOnCanvas.add(shape) // Add the shape to the canvas
-            }
+            Shapes_tool(rectangleSelected, circleSelected, triangleSelected)
             Text_tool(isInTextMode, currentText)
             Selection_tool()
             Image_tool()

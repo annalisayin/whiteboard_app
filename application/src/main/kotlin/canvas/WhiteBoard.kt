@@ -9,19 +9,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import toolbar.ToolSelection
-import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.text.drawText
-import androidx.compose.ui.text.rememberTextMeasurer
-import data.Rectangle
-import data.Shape
-import data.TextBox
+import data.*
 
 
 @Composable
@@ -30,11 +20,13 @@ fun WhiteBoard() {
     val sketchStatus = remember { mutableStateOf(false) }
     val inUsedColor = remember { mutableStateOf(Color.Black)}
     val brushSize = remember { mutableStateOf(1)}
-    val shapesOnCanvas by remember { mutableStateOf(mutableStateListOf<Shape>()) }
     val shapeList = remember { mutableStateListOf<Shape>()}
     val isInTextMode = remember { mutableStateOf(false)}
+    val rectangleSelected = remember { mutableStateOf(false)}
+    val circleSelected = remember { mutableStateOf(false)}
+    val triangleSelected = remember { mutableStateOf(false)}
     var currentText = remember {mutableStateOf("hello")}
-    ToolSelection(sketchStatus, inUsedColor, brushSize, shapesOnCanvas = shapesOnCanvas, isInTextMode, currentText)
+    ToolSelection(sketchStatus, inUsedColor, brushSize, isInTextMode, rectangleSelected, circleSelected, triangleSelected, currentText)
 
     // box acting as the real canvas, encompassing all composables and elements drawn
     Box(modifier = Modifier
@@ -43,8 +35,21 @@ fun WhiteBoard() {
         .pointerInput(Unit) {
             detectTapGestures(
                 onTap = { tapOffset ->
-                    val newRec = Rectangle(offset = tapOffset)
-                    shapeList.add(newRec)
+                    if ( rectangleSelected.value ) {
+                         val newRec = Rectangle(offset = tapOffset)
+                         shapeList.add(newRec)
+                        rectangleSelected.value = false
+                    }
+                    if ( circleSelected.value ) {
+                        val newCir = Circle(offset = tapOffset)
+                        shapeList.add(newCir)
+                        circleSelected.value = false
+                    }
+                    if ( triangleSelected.value ) {
+                        val newTri = Triangle(offset = tapOffset)
+                        shapeList.add(newTri)
+                        triangleSelected.value = false
+                    }
                 }
             )
         }, //contentAlignment = Alignment.TopStart

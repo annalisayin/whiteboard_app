@@ -10,13 +10,9 @@ import androidx.compose.ui.window.Popup
 import androidx.compose.material.Icon
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Text
 import androidx.compose.material.icons.*
 import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.outlined.AccountBox
-import androidx.compose.material.icons.outlined.Close
 import androidx.compose.ui.window.PopupProperties
 import data.Shape
 
@@ -24,7 +20,7 @@ import data.Rectangle
 
 
 @Composable
-fun Shapes_tool( addShapeToCanvas: (Shape) -> Unit ) {
+fun Shapes_tool(rectangleSelected: MutableState<Boolean>, circleSelected: MutableState<Boolean>, triangleSelected: MutableState<Boolean>) {
 
     val openDialog = remember { mutableStateOf(false) }
     val buttonTitle = remember {
@@ -58,20 +54,29 @@ fun Shapes_tool( addShapeToCanvas: (Shape) -> Unit ) {
                             Button(
                                 modifier = Modifier
                                     .padding(10.dp),
-                                onClick = {}
+                                onClick = {
+                                    rectangleSelected.value = !rectangleSelected.value
+                                    openDialog.value = !openDialog.value
+                                }
                             ) {
                                 Icon(Icons.Default.MailOutline, contentDescription = "Create Rectangle")
                             }
                             Button(
                                 modifier = Modifier
                                     .padding(10.dp),
-                                onClick = { }
+                                onClick = {
+                                    circleSelected.value = !circleSelected.value
+                                    openDialog.value = !openDialog.value
+                                }
                             ) {
                                 Icon(Icons.Default.CheckCircle, contentDescription = "Create Circle")
                             }
                             Button(
                                 modifier = Modifier.padding(10.dp),
-                                onClick = { }
+                                onClick = {
+                                    triangleSelected.value = !triangleSelected.value
+                                    openDialog.value = !openDialog.value
+                                }
                             ) {
                                 Icon(Icons.Default.PlayArrow, contentDescription = "Create Triangle")
                             }
