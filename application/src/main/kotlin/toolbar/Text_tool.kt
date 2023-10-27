@@ -1,16 +1,14 @@
 package toolbar
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Text
-import androidx.compose.material.TextField
+import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
@@ -36,24 +34,15 @@ fun Text_tool(isInTextMode: MutableState<Boolean>, currentText: MutableState<Str
     ) {
         Text("A")
     }
+    var text by remember { mutableStateOf(TextFieldValue()) }
     Box{
         if (openDialog.value) {
             buttonTitle.value = "Hide Pop Up"
-            Popup(
-                alignment = Alignment.TopCenter,
-                properties = PopupProperties()
-            ) {
-                var text by remember { mutableStateOf("Hello") }
-
-                TextField(
-                    value = text,
-                    onValueChange = {
-                        text = it
-                        currentText.value = text
-                                    },
-                )
-            }
+            TextField(modifier = Modifier.align(Alignment.Center),
+                value = text,
+                onValueChange = {
+                    text = it
+                })
         }
     }
-    isInTextMode.value = selected
 }

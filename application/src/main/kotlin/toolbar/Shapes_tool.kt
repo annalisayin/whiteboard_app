@@ -25,7 +25,6 @@ import data.Rectangle
 import data.Circle
 import data.Triangle
 
-
 @Composable
 fun Shapes_tool( addShapeToCanvas: (Shape) -> Unit ) {
 

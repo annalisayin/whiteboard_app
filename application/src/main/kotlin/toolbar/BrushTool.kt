@@ -52,12 +52,10 @@ fun BrushSizeSelector(brushSize: MutableState<Int>) {
 @Composable
 fun ColorPicker(inUsedColor: MutableState<Color>) {
     var sliderPosition by remember { mutableStateOf(0f) }
-
     val colors: List<Color> = (0 until 100).map { index ->
         val colorInt = (index * 0xFFFFFF / 100) or 0xFF000000.toInt()
         Color(colorInt)
     }
-
     Column(
         modifier = Modifier
             .width(200.dp)
@@ -72,14 +70,12 @@ fun ColorPicker(inUsedColor: MutableState<Color>) {
             valueRange = 0f..(colors.size - 1).toFloat(),
             steps = colors.size - 1,
         )
-
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(20.dp)
                 .background(colors[sliderPosition.toInt()])
         )
-
         Spacer(modifier = Modifier.height(15.dp))
     }
 }
