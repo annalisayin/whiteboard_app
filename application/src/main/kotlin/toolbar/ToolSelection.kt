@@ -23,12 +23,9 @@ fun ToolSelection(
     triangleSelected: MutableState<Boolean>,
     currentText: MutableState<String>
 ) {
-    var sketchStatus by remember { mutableStateOf("Sketch not in use") }
     MaterialTheme {
         Text("TOOL BAR")
-
         Spacer(modifier = Modifier.height(20.dp))
-
         Row(
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically,
@@ -44,8 +41,8 @@ fun ToolSelection(
             }) {
                 Text(sketchStatus)
             }
-            Brush_tool(inUsedColor, brushSize)
             Shapes_tool(rectangleSelected, circleSelected, triangleSelected)
+            Brush_tool(inUsedColor, brushSize, useSketch)
             Text_tool(isInTextMode, currentText)
             Selection_tool()
             Image_tool()

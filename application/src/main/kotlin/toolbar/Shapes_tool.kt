@@ -18,7 +18,6 @@ import data.Shape
 
 import data.Rectangle
 
-
 @Composable
 fun Shapes_tool(rectangleSelected: MutableState<Boolean>, circleSelected: MutableState<Boolean>, triangleSelected: MutableState<Boolean>) {
 
