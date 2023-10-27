@@ -17,8 +17,10 @@ fun ToolSelection(
     useSketch: MutableState<Boolean>,
     inUsedColor: MutableState<Color>,
     brushSize: MutableState<Int>,
-    shapesOnCanvas: MutableList<Shape>,
     isInTextMode: MutableState<Boolean>,
+    rectangleSelected: MutableState<Boolean>,
+    circleSelected: MutableState<Boolean>,
+    triangleSelected: MutableState<Boolean>,
     currentText: MutableState<String>
 ) {
     MaterialTheme {
@@ -28,10 +30,19 @@ fun ToolSelection(
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Brush_tool(inUsedColor, brushSize, useSketch)
-            Shapes_tool { shape ->
-                shapesOnCanvas.add(shape) // Add the shape to the canvas
+            Button(onClick = {
+                if (!useSketch.value) {
+                    sketchStatus = "Sketch in use!"
+                    useSketch.value = true
+                } else {
+                    sketchStatus = "Sketch not in use"
+                    useSketch.value = false
+                }
+            }) {
+                Text(sketchStatus)
             }
+            Shapes_tool(rectangleSelected, circleSelected, triangleSelected)
+            Brush_tool(inUsedColor, brushSize, useSketch)
             Text_tool(isInTextMode, currentText)
             Selection_tool()
             Image_tool()
