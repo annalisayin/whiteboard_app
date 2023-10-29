@@ -16,19 +16,13 @@ import data.TextBox
 
 @Composable
 fun Text_tool(isInTextMode: MutableState<Boolean>, currentText: MutableState<String>) {
-    val openDialog = remember { mutableStateOf(false) }
-    val buttonTitle = remember {
-        mutableStateOf("Show Pop Up")
-    }
     var selected by remember{ mutableStateOf(false)}
-    val color = if (selected) androidx.compose.ui.graphics.Color.Green else Color.Gray
-
+    val color = if (selected) Color.Green else Color.Gray
     Button(
         modifier = Modifier
             .padding(30.dp),
         onClick = {
             selected = !selected
-            openDialog.value = !openDialog.value
         },
         colors = ButtonDefaults.buttonColors(backgroundColor = color)
     ) {
@@ -36,8 +30,7 @@ fun Text_tool(isInTextMode: MutableState<Boolean>, currentText: MutableState<Str
     }
     var text by remember { mutableStateOf(TextFieldValue()) }
     Box{
-        if (openDialog.value) {
-            buttonTitle.value = "Hide Pop Up"
+        if (selected) {
             TextField(modifier = Modifier.align(Alignment.Center),
                 value = text,
                 onValueChange = {
