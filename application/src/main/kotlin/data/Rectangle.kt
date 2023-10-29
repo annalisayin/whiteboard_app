@@ -16,7 +16,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
-class Rectangle(offset: Offset) : Shape(offset) {
+class Rectangle(offset: Offset, color: Color) : Shape(offset, color) {
     var size = 100.dp
     @Composable
     override fun draw() {
