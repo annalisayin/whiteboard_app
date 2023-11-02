@@ -17,11 +17,11 @@ fun ToolSelection(
     useSketch: MutableState<Boolean>,
     inUsedColor: MutableState<Color>,
     brushSize: MutableState<Int>,
-    isInTextMode: MutableState<Boolean>,
+    textSelected: MutableState<Boolean>,
+    currentText: MutableState<String>,
     rectangleSelected: MutableState<Boolean>,
     circleSelected: MutableState<Boolean>,
     triangleSelected: MutableState<Boolean>,
-    currentText: MutableState<String>
 ) {
     MaterialTheme {
         Text("TOOL BAR")
@@ -32,7 +32,7 @@ fun ToolSelection(
         ) {
             Shapes_tool(rectangleSelected, circleSelected, triangleSelected)
             Brush_tool(inUsedColor, brushSize, useSketch)
-            Text_tool(isInTextMode, currentText)
+            Text_tool(textSelected, currentText)
             Selection_tool()
             Image_tool()
         }
