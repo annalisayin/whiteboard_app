@@ -22,6 +22,8 @@ fun ToolSelection(
     rectangleSelected: MutableState<Boolean>,
     circleSelected: MutableState<Boolean>,
     triangleSelected: MutableState<Boolean>,
+    currentText: MutableState<String>,
+    deleteObjects: MutableState<Boolean>
 ) {
     MaterialTheme {
         Text("TOOL BAR")
@@ -34,7 +36,7 @@ fun ToolSelection(
             Brush_tool(inUsedColor, brushSize, useSketch)
             Text_tool(textSelected, currentText)
             Selection_tool()
-            Image_tool()
+            Delete_tool(deleteObjects)
         }
     }
 }
