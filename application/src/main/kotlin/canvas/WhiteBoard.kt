@@ -26,7 +26,8 @@ fun WhiteBoard() {
     val circleSelected = remember { mutableStateOf(false)}
     val triangleSelected = remember { mutableStateOf(false)}
     var currentText = remember {mutableStateOf("hello")}
-    ToolSelection(sketchStatus, inUsedColor, brushSize, isInTextMode, rectangleSelected, circleSelected, triangleSelected, currentText)
+    val deleteObjects = remember { mutableStateOf(false)}
+    ToolSelection(sketchStatus, inUsedColor, brushSize, isInTextMode, rectangleSelected, circleSelected, triangleSelected, currentText, deleteObjects)
 
     // box acting as the real canvas, encompassing all composables and elements drawn
     Box(modifier = Modifier
@@ -85,6 +86,13 @@ fun WhiteBoard() {
                 )
             }
         }
-        shapeList.forEach { shape -> shape.draw() }
+        shapeList.forEach { shape ->
+                // Draw the shape if not in delete mode
+                shape.draw()
+        }
+        if (deleteObjects.value) {
+            shapeList.removeLastOrNull()
+            deleteObjects.value = false
+        }
     }
 }
