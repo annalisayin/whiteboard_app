@@ -21,13 +21,14 @@ fun WhiteBoard() {
     val inUsedColor = remember { mutableStateOf(Color.Black)}
     val brushSize = remember { mutableStateOf(1)}
     val shapeList = remember { mutableStateListOf<Shape>()}
-    val isInTextMode = remember { mutableStateOf(false)}
+    val textList = remember { mutableStateListOf<TextBox>()}
+    val textSelected = remember { mutableStateOf(false)}
     val rectangleSelected = remember { mutableStateOf(false)}
     val circleSelected = remember { mutableStateOf(false)}
     val triangleSelected = remember { mutableStateOf(false)}
     var currentText = remember {mutableStateOf("hello")}
     val deleteObjects = remember { mutableStateOf(false)}
-    ToolSelection(sketchStatus, inUsedColor, brushSize, isInTextMode, rectangleSelected, circleSelected, triangleSelected, currentText, deleteObjects)
+    ToolSelection(sketchStatus, inUsedColor, brushSize, textSelected, currentText, rectangleSelected, circleSelected, triangleSelected, deleteObjects)
 
     // box acting as the real canvas, encompassing all composables and elements drawn
     Box(modifier = Modifier
@@ -50,6 +51,12 @@ fun WhiteBoard() {
                         val newTri = Triangle(offset = tapOffset)
                         shapeList.add(newTri)
                         triangleSelected.value = false
+                    }
+                    if (textSelected.value){
+                        println(currentText.value)
+                        val newText = TextBox(offset = tapOffset, currentText.value)
+                        textList.add(newText)
+                        textSelected.value = false
                     }
                 }
             )
@@ -86,10 +93,8 @@ fun WhiteBoard() {
                 )
             }
         }
-        shapeList.forEach { shape ->
-                // Draw the shape if not in delete mode
-                shape.draw()
-        }
+        shapeList.forEach { shape -> shape.draw() }
+        textList.forEach { text -> text.draw() }
         if (deleteObjects.value) {
             shapeList.removeLastOrNull()
             deleteObjects.value = false

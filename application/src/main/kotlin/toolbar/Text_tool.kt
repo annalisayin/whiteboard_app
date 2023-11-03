@@ -10,36 +10,40 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.em
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import data.TextBox
 
 @Composable
-fun Text_tool(isInTextMode: MutableState<Boolean>, currentText: MutableState<String>) {
-    val openDialog = remember { mutableStateOf(false) }
+fun Text_tool(textSelected: MutableState<Boolean>, currentText: MutableState<String>) {
+    //val openDialog = remember { mutableStateOf(false) }
     val buttonTitle = remember {
         mutableStateOf("Show Pop Up")
     }
-    var selected by remember{ mutableStateOf(false)}
-    val color = if (selected) androidx.compose.ui.graphics.Color.Green else Color.Gray
+    //val color = if (textSelected.value) Color.Green else Color.Gray
+    var text by remember { mutableStateOf(TextFieldValue()) }
+//    isInTextMode.value = openDialog.value
+    currentText.value = text.text
 
     Button(
         modifier = Modifier
             .padding(30.dp),
         onClick = {
-            selected = !selected
-            openDialog.value = !openDialog.value
+            textSelected.value = !textSelected.value
         },
-        colors = ButtonDefaults.buttonColors(backgroundColor = color)
     ) {
-        Text("A")
+        Text("A", fontSize = 20.sp)
     }
-    var text by remember { mutableStateOf(TextFieldValue()) }
     Box{
-        if (openDialog.value) {
+        if (textSelected.value) {
             buttonTitle.value = "Hide Pop Up"
-            TextField(modifier = Modifier.align(Alignment.Center),
+            TextField(modifier = Modifier
+                //.align(Alignment.Center)
+                .width(width=150.dp),
                 value = text,
+                enabled = true,
                 onValueChange = {
                     text = it
                 })
