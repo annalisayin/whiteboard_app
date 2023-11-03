@@ -22,7 +22,6 @@ fun ToolSelection(
     rectangleSelected: MutableState<Boolean>,
     circleSelected: MutableState<Boolean>,
     triangleSelected: MutableState<Boolean>,
-    currentText: MutableState<String>,
     deleteObjects: MutableState<Boolean>
 ) {
     MaterialTheme {
