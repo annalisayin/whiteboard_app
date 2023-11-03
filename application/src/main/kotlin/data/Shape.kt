@@ -6,8 +6,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 
-abstract class Shape(var offset: Offset) {
+abstract class Shape(var offset: Offset, var color: Color) {
     @Composable
     abstract fun draw()
-    val color: Color = Color.Black
+    //val color: Color = Color.Black
 }

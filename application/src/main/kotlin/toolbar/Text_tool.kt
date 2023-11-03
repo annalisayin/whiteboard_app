@@ -26,7 +26,6 @@ fun Text_tool(textSelected: MutableState<Boolean>, currentText: MutableState<Str
     var text by remember { mutableStateOf(TextFieldValue()) }
 //    isInTextMode.value = openDialog.value
     currentText.value = text.text
-
     Button(
         modifier = Modifier
             .padding(30.dp),

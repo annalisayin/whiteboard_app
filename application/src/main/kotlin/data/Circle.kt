@@ -17,7 +17,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
-class Circle(offset: Offset) : Shape(offset) {
+class Circle(offset: Offset, color: Color) : Shape(offset, color) {
     var size = 100.dp
     @Composable
     override fun draw() {

@@ -32,6 +32,7 @@ fun ToolSelection(
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically,
         ) {
+            Color_Size(inUsedColor, brushSize)
             Shapes_tool(rectangleSelected, circleSelected, triangleSelected)
             Brush_tool(inUsedColor, brushSize, useSketch)
             Text_tool(textSelected, currentText)

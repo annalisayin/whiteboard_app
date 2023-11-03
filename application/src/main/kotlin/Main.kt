@@ -10,8 +10,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.window.Window
+import androidx.compose.ui.window.WindowState
 import androidx.compose.ui.window.application
+import androidx.compose.ui.window.rememberWindowState
 import canvas.WhiteBoard
 
 
@@ -30,7 +33,8 @@ fun App() {
 }
 
 fun main() = application {
-    Window(onCloseRequest = ::exitApplication) {
+    val windowState = rememberWindowState(size = DpSize.Unspecified)
+    Window(onCloseRequest = ::exitApplication, state = windowState) {
         Column(modifier = Modifier
             .fillMaxSize()
             .background(Color.LightGray),

@@ -41,17 +41,17 @@ fun WhiteBoard() {
             detectTapGestures(
                 onTap = { tapOffset ->
                     if ( rectangleSelected.value ) {
-                         val newRec = Rectangle(offset = tapOffset)
+                         val newRec = Rectangle(offset = tapOffset, color = inUsedColor.value)
                          shapeList.add(newRec)
                         rectangleSelected.value = false
                     }
                     if ( circleSelected.value ) {
-                        val newCir = Circle(offset = tapOffset)
+                        val newCir = Circle(offset = tapOffset, color = inUsedColor.value)
                         shapeList.add(newCir)
                         circleSelected.value = false
                     }
                     if ( triangleSelected.value ) {
-                        val newTri = Triangle(offset = tapOffset)
+                        val newTri = Triangle(offset = tapOffset, color = inUsedColor.value)
                         shapeList.add(newTri)
                         triangleSelected.value = false
                     }
