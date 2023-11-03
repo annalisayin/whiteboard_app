@@ -1,16 +1,17 @@
 package toolbar
-import androidx.compose.foundation.layout.*
-import androidx.compose.material.Button
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-
-import data.Shape
-import data.TextBox
 
 @Composable
 fun ToolSelection(
@@ -22,7 +23,6 @@ fun ToolSelection(
     rectangleSelected: MutableState<Boolean>,
     circleSelected: MutableState<Boolean>,
     triangleSelected: MutableState<Boolean>,
-    currentText: MutableState<String>,
     deleteObjects: MutableState<Boolean>
 ) {
     MaterialTheme {

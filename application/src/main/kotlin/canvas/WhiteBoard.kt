@@ -3,15 +3,18 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
-import toolbar.ToolSelection
-import androidx.compose.foundation.layout.Box
-import androidx.compose.runtime.*
 import data.*
+import toolbar.ToolSelection
 
 
 @Composable
@@ -26,7 +29,7 @@ fun WhiteBoard() {
     val rectangleSelected = remember { mutableStateOf(false)}
     val circleSelected = remember { mutableStateOf(false)}
     val triangleSelected = remember { mutableStateOf(false)}
-    var currentText = remember {mutableStateOf("hello")}
+    val currentText = remember {mutableStateOf("hello")}
     val deleteObjects = remember { mutableStateOf(false)}
     ToolSelection(sketchStatus, inUsedColor, brushSize, textSelected, currentText, rectangleSelected, circleSelected, triangleSelected, deleteObjects)
 
