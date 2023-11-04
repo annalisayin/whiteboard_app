@@ -10,6 +10,7 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
@@ -21,7 +22,7 @@ import toolbar.ToolSelection
 fun WhiteBoard() {
     val sketches = remember { mutableStateListOf<Sketch>() }
     val sketchStatus = remember { mutableStateOf(false) }
-    val inUsedColor = remember { mutableStateOf(Color.Black)}
+    val inUsedColor = remember { mutableStateOf(0)}
     val brushSize = remember { mutableStateOf(1)}
     val shapeList = remember { mutableStateListOf<Shape>()}
     val textList = remember { mutableStateListOf<TextBox>()}
@@ -41,17 +42,17 @@ fun WhiteBoard() {
             detectTapGestures(
                 onTap = { tapOffset ->
                     if ( rectangleSelected.value ) {
-                         val newRec = Rectangle(offset = tapOffset, color = inUsedColor.value)
+                         val newRec = Rectangle(offset = tapOffset, color = Color(inUsedColor.value))
                          shapeList.add(newRec)
                         rectangleSelected.value = false
                     }
                     if ( circleSelected.value ) {
-                        val newCir = Circle(offset = tapOffset, color = inUsedColor.value)
+                        val newCir = Circle(offset = tapOffset, color = Color(inUsedColor.value))
                         shapeList.add(newCir)
                         circleSelected.value = false
                     }
                     if ( triangleSelected.value ) {
-                        val newTri = Triangle(offset = tapOffset, color = inUsedColor.value)
+                        val newTri = Triangle(offset = tapOffset, color = Color(inUsedColor.value))
                         shapeList.add(newTri)
                         triangleSelected.value = false
                     }
@@ -74,11 +75,15 @@ fun WhiteBoard() {
                 detectDragGestures { change, dragAmount ->
                     change.consume()
                     if (sketchStatus.value) {
+                        val startOffset = change.position - dragAmount
+                        val endOffset = change.position
                         val sketch = Sketch(
-                            start = change.position - dragAmount,
-                            end = change.position,
+                            startX = startOffset.x,
+                            startY = startOffset.y,
+                            endX = endOffset.x,
+                            endY = endOffset.y,
                             color = inUsedColor.value,
-                            width = brushSize.value.dp,
+                            width = brushSize.value,
                         )
                         sketches.add(sketch)
                     }
@@ -88,11 +93,12 @@ fun WhiteBoard() {
         )
         {
             sketches.forEach { sketch ->
+                val colorInt = (sketch.color * 0xFFFFFF / 100) or 0xFF000000.toInt()
                 drawLine(
-                    color = sketch.color,
-                    start = sketch.start,
-                    end = sketch.end,
-                    strokeWidth = sketch.width.toPx(),
+                    color = Color(colorInt),
+                    start = Offset(sketch.startX, sketch.startY),
+                    end = Offset(sketch.endX, sketch.endY),
+                    strokeWidth = sketch.width.dp.toPx(),
                 )
             }
         }
