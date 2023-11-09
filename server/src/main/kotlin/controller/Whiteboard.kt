@@ -12,32 +12,28 @@ import models.Sketch
 import models.toSketch
 import service.findAllSketches
 import service.insertSketch
+import java.util.*
 
 fun Application.configureWhiteboard() {
     routing {
-        var updateSketches = true
+        val incomingSketch: Queue<Sketch> = LinkedList<Sketch>()
         webSocket("/sketch") {
             for (frame in incoming) {
                 frame as? Frame.Text ?: continue
                 val receivedText = frame.readText()
                 val sketch = Json.decodeFromString<Sketch>(receivedText)
                 insertSketch(sketch) // Insert the received Sketch object into the database
-                print("received sketch")
-                updateSketches = true
+                incomingSketch.add(sketch)
             }
         }
 
         webSocket("/sketches") {
-            while(updateSketches) {
-                val updatedSketches: List<Sketch> = findAllSketches().map { row -> row.toSketch() }
-                println("get updated sketches")
-                // Convert the list of sketches to JSON
-                val sketchesJson = Json.encodeToString(updatedSketches)
-                print("prepare to send back sketches")
-                // Send the JSON data to the client
-                send(Frame.Text(sketchesJson))
-                print("sending back sketch")
-                updateSketches = false
+            while(incomingSketch.size > 0) {
+                val sendingSketch: Sketch? = incomingSketch.poll()
+                if (sendingSketch != null) {
+                    val sketchJson = Json.encodeToString(sendingSketch)
+                    send(Frame.Text(sketchJson))
+                }
             }
         }
 
