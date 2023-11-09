@@ -1,7 +1,10 @@
+
 import controller.configureWhiteboard
+import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
+import io.ktor.server.plugins.contentnegotiation.*
 import models.SketchModel
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
@@ -19,6 +22,9 @@ fun main() {
 }
 
 fun Application.module() {
+    install(ContentNegotiation) {
+        json()
+    }
     transaction {
         SchemaUtils.create(SketchModel)
         // Test one random record
