@@ -15,11 +15,32 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import data.*
+import io.ktor.client.*
+import io.ktor.client.engine.cio.*
+import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.client.plugins.websocket.*
+import io.ktor.http.*
+import io.ktor.serialization.kotlinx.json.*
+import io.ktor.websocket.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import toolbar.ToolSelection
 
 
 @Composable
 fun WhiteBoard() {
+    val client = HttpClient(CIO) {
+        install(ContentNegotiation) {
+            json(Json {
+                prettyPrint = true
+                isLenient = true
+            })
+        }
+        install(WebSockets)
+    }
     val sketches = remember { mutableStateListOf<Sketch>() }
     val sketchStatus = remember { mutableStateOf(false) }
     val inUsedColor = remember { mutableStateOf(0)}
@@ -85,13 +106,48 @@ fun WhiteBoard() {
                             color = inUsedColor.value,
                             width = brushSize.value,
                         )
-                        sketches.add(sketch)
+//                        runBlocking {
+//                            println("sending sketch ...")
+//                            try {
+//                                client.post("http://localhost:8080/sketch") {
+//                                    contentType(ContentType.Application.Json)
+//                                    setBody(Json.encodeToString(sketch))
+//                                }
+//                                println("send sketch successfully")
+//                            }
+//                            catch (e: Exception) {
+//                                println(e)
+//                            }
+//                        }
+                        CoroutineScope(Dispatchers.IO).launch {
+                            client.webSocket(method = HttpMethod.Get, host = "127.0.0.1", port = 8080, path = "/sketch") {
+                                println("preparing to send")
+                                send(Frame.Text(Json.encodeToString(sketch)))
+                                println(sketch)
+                            }
+                        }
+//                        sketches.add(sketch)
                     }
                 }
 
             }
         )
         {
+            CoroutineScope(Dispatchers.IO).launch {
+                client.webSocket(method = HttpMethod.Get, host = "127.0.0.1", port = 8080, path = "/sketches") {
+                    for (frame in incoming) {
+                        frame as? Frame.Text ?: continue
+                        val sketchesJson = frame.readText()
+
+                        // Deserialize the JSON string into a list of Sketch objects
+                        val responseSketches: List<Sketch> = Json.decodeFromString(sketchesJson)
+                        print("received new sketches")
+                        sketches.clear()
+                        responseSketches.forEach { sketch: Sketch -> sketches.add(sketch) }
+                        print(sketches)
+                    }
+                }
+            }
             sketches.forEach { sketch ->
                 val colorInt = (sketch.color * 0xFFFFFF / 100) or 0xFF000000.toInt()
                 drawLine(
