@@ -54,7 +54,7 @@ fun WhiteBoard() {
             println(e)
         }
     }
-    val receivedSketches: MutableList<Sketch> = mutableListOf()
+    val insendingSketches: MutableList<Sketch> = mutableListOf()
     val sketchStatus = remember { mutableStateOf(false) }
     val inUsedColor = remember { mutableStateOf(0)}
     val brushSize = remember { mutableStateOf(1)}
@@ -106,7 +106,8 @@ fun WhiteBoard() {
             .fillMaxSize()
             .background(Color.White)
             .pointerInput(true) {
-                detectDragGestures { change, dragAmount ->
+                detectDragGestures(
+                    onDrag = { change, dragAmount ->
                     change.consume()
                     if (sketchStatus.value) {
                         val startOffset = change.position - dragAmount
@@ -119,26 +120,33 @@ fun WhiteBoard() {
                             color = inUsedColor.value,
                             width = brushSize.value,
                         )
-                        CoroutineScope(Dispatchers.IO).launch {
-                            client.webSocket(method = HttpMethod.Get, host = "127.0.0.1", port = 8080, path = "/sketch") {
-                                send(Frame.Text(Json.encodeToString(sketch)))
-                            }
-                        }
-                        CoroutineScope(Dispatchers.IO).launch {
-                            client.webSocket(method = HttpMethod.Get, host = "127.0.0.1", port = 8080, path = "/sketches") {
-                                for (frame in incoming) {
-                                    frame as? Frame.Text ?: continue
-                                    val sketchJson = frame.readText()
+                        insendingSketches.add(sketch)
+                    }
+                },
+                onDragEnd = {
 
-                                    // Deserialize the JSON string into a list of Sketch objects
-                                    val responseSketch: Sketch = Json.decodeFromString(sketchJson)
-                                    receivedSketches.add(responseSketch)
-                                }
+                    CoroutineScope(Dispatchers.IO).launch {
+                        client.webSocket(method = HttpMethod.Get, host = "127.0.0.1", port = 8080, path = "/sketch") {
+                            val sketchesList = insendingSketches.toList()
+                            val sketchesJson = Json.encodeToString(sketchesList)
+                            send(Frame.Text(sketchesJson))
+                            insendingSketches.clear()
+                        }
+                    }
+                    CoroutineScope(Dispatchers.IO).launch {
+                        client.webSocket(method = HttpMethod.Get, host = "127.0.0.1", port = 8080, path = "/sketches") {
+                            for (frame in incoming) {
+                                frame as? Frame.Text ?: continue
+                                val sketchJson = frame.readText()
+
+                                // Deserialize the JSON string into a list of Sketch objects
+                                val responseSketch: MutableList<Sketch> = Json.decodeFromString(sketchJson)
+                                sketches.addAll(responseSketch)
                             }
                         }
-                        sketches.addAll(receivedSketches)
                     }
                 }
+                )
 
             }
         )

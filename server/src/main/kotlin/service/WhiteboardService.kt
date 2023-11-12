@@ -27,6 +27,5 @@ fun insertSketch(sketch: Sketch) {
             it[color] = sketch.color
             it[width] = sketch.width
         }
-        println("Sketch with ID: $id inserted into SketchModel.")
     }
 }

@@ -6,34 +6,38 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.websocket.*
 import io.ktor.websocket.*
+import kotlinx.coroutines.delay
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import models.Sketch
 import models.toSketch
 import service.findAllSketches
 import service.insertSketch
-import java.util.*
 
 fun Application.configureWhiteboard() {
     routing {
-        val incomingSketch: Queue<Sketch> = LinkedList<Sketch>()
+        val incomingSketches: MutableList<Sketch> = mutableListOf()
         webSocket("/sketch") {
             for (frame in incoming) {
                 frame as? Frame.Text ?: continue
                 val receivedText = frame.readText()
-                val sketch = Json.decodeFromString<Sketch>(receivedText)
-                insertSketch(sketch) // Insert the received Sketch object into the database
-                incomingSketch.add(sketch)
+                val sketches = Json.decodeFromString<List<Sketch>>(receivedText)
+                println(sketches)
+                for (sketch in sketches) {
+                    insertSketch(sketch)
+                }
+                incomingSketches.addAll(sketches)
             }
         }
 
         webSocket("/sketches") {
-            while(incomingSketch.size > 0) {
-                val sendingSketch: Sketch? = incomingSketch.poll()
-                if (sendingSketch != null) {
-                    val sketchJson = Json.encodeToString(sendingSketch)
+            while (true) {
+                if (incomingSketches.isNotEmpty()) {
+                    val sketchJson = Json.encodeToString(incomingSketches)
                     send(Frame.Text(sketchJson))
+                    incomingSketches.clear()
                 }
+                delay(10) // Introduce a delay between iterations to allow other coroutines to run
             }
         }
 
