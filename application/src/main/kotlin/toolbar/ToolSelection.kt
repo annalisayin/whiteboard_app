@@ -33,8 +33,8 @@ fun ToolSelection(
         ) {
             Color_Size(inUsedColor, brushSize)
             Shapes_tool(rectangleSelected, circleSelected, triangleSelected)
-            Brush_tool(useSketch)
-            Text_tool(textSelected, currentText, inUsedColor)
+            Brush_tool(inUsedColor, brushSize, useSketch)
+            Text_tool(textSelected, currentText)
             Selection_tool()
             Delete_tool(deleteObjects)
         }

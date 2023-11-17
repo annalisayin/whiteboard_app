@@ -15,14 +15,16 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import data.TextBox
-import org.jetbrains.skia.paragraph.TextStyle
 
 @Composable
-fun Text_tool(textSelected: MutableState<Boolean>, currentText: MutableState<String>, color:MutableState<Color>) {
+fun Text_tool(textSelected: MutableState<Boolean>, currentText: MutableState<String>) {
+    //val openDialog = remember { mutableStateOf(false) }
     val buttonTitle = remember {
         mutableStateOf("Show Pop Up")
     }
+    //val color = if (textSelected.value) Color.Green else Color.Gray
     var text by remember { mutableStateOf(TextFieldValue()) }
+//    isInTextMode.value = openDialog.value
     currentText.value = text.text
     Button(
         modifier = Modifier
@@ -37,6 +39,7 @@ fun Text_tool(textSelected: MutableState<Boolean>, currentText: MutableState<Str
         if (textSelected.value) {
             buttonTitle.value = "Hide Pop Up"
             TextField(modifier = Modifier
+                //.align(Alignment.Center)
                 .width(width=150.dp),
                 value = text,
                 enabled = true,

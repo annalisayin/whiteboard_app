@@ -17,7 +17,7 @@ fun BrushSizeSelector(brushSize: MutableState<Int>) {
         modifier = Modifier
             .width(200.dp)
     ) {
-        Text("Pick a size from slider")
+        Text("Pick a brush size from slider")
         Slider(
             value = sliderPosition,
             onValueChange = {

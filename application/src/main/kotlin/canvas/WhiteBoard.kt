@@ -12,8 +12,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import data.*
@@ -78,23 +76,23 @@ fun WhiteBoard() {
             detectTapGestures(
                 onTap = { tapOffset ->
                     if ( rectangleSelected.value ) {
-                         val newRec = Rectangle(offset = tapOffset, color = inUsedColor.value, size = brushSize.value.dp)
+                         val newRec = Rectangle(offset = tapOffset, color = Color(inUsedColor.value))
                          shapeList.add(newRec)
                         rectangleSelected.value = false
                     }
                     if ( circleSelected.value ) {
-                        val newCir = Circle(offset = tapOffset, color = inUsedColor.value, size = brushSize.value.dp)
+                        val newCir = Circle(offset = tapOffset, color = Color(inUsedColor.value))
                         shapeList.add(newCir)
                         circleSelected.value = false
                     }
                     if ( triangleSelected.value ) {
-                        val newTri = Triangle(offset = tapOffset, color = inUsedColor.value, size = brushSize.value.dp)
+                        val newTri = Triangle(offset = tapOffset, color = Color(inUsedColor.value))
                         shapeList.add(newTri)
                         triangleSelected.value = false
                     }
                     if (textSelected.value){
                         println(currentText.value)
-                        val newText = TextBox(offset = tapOffset, currentText.value, color = inUsedColor.value, size = brushSize.value.dp)
+                        val newText = TextBox(offset = tapOffset, currentText.value)
                         textList.add(newText)
                         textSelected.value = false
                     }
@@ -156,11 +154,10 @@ fun WhiteBoard() {
             sketches.forEach { sketch ->
                 val colorInt = (sketch.color * 0xFFFFFF / 100) or 0xFF000000.toInt()
                 drawLine(
-                    color = sketch.color,
-                    start = sketch.start,
-                    end = sketch.end,
-                    strokeWidth = sketch.width.toPx(),
-                    cap = StrokeCap.Round
+                    color = Color(colorInt),
+                    start = Offset(sketch.startX, sketch.startY),
+                    end = Offset(sketch.endX, sketch.endY),
+                    strokeWidth = sketch.width.dp.toPx(),
                 )
             }
         }
