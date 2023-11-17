@@ -16,7 +16,7 @@ import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 
 @Composable
-fun Brush_tool(inUsedColor: MutableState<Color>, brushSize: MutableState<Int>, useSketch: MutableState<Boolean>) {
+fun Brush_tool(useSketch: MutableState<Boolean>) {
     val color = if (useSketch.value) Color.Green else Color.Gray
     Button(
             modifier = Modifier
