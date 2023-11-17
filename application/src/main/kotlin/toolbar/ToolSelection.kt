@@ -16,7 +16,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun ToolSelection(
     currentTool: MutableState<Int>,
-    inUsedColor: MutableState<Color>,
+    inUsedColor: MutableState<Int>,
     brushSize: MutableState<Int>,
     currentText: MutableState<String>,
 ) {

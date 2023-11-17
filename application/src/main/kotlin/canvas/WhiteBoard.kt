@@ -19,7 +19,7 @@ import toolbar.ToolSelection
 
 @Composable
 fun WhiteBoard() {
-    val inUsedColor = remember { mutableStateOf(Color.Black)}
+    val inUsedColor = remember { mutableStateOf(0)}
     val brushSize = remember { mutableStateOf(1)}
     val currentText = remember {mutableStateOf("hello")}
 
@@ -46,19 +46,19 @@ fun WhiteBoard() {
             detectTapGestures(
                 onTap = { tapOffset ->
                     if (currentTool.value == 1) {
-                        val newRec = Rectangle(offset = tapOffset, color = inUsedColor.value)
+                        val newRec = Rectangle(offset = tapOffset, color = Color(inUsedColor.value))
                         shapeList.add(newRec)
                         currentTool.value = -1
                         recentObject.add(1)
                     }
                     if (currentTool.value == 2) {
-                        val newCir = Circle(offset = tapOffset, color = inUsedColor.value)
+                        val newCir = Circle(offset = tapOffset, color = Color(inUsedColor.value))
                         shapeList.add(newCir)
                         currentTool.value = -1
                         recentObject.add(2)
                     }
                     if (currentTool.value == 3) {
-                        val newTri = Triangle(offset = tapOffset, color = inUsedColor.value)
+                        val newTri = Triangle(offset = tapOffset, color = Color(inUsedColor.value))
                         shapeList.add(newTri)
                         currentTool.value = -1
                         recentObject.add(3)
@@ -86,7 +86,7 @@ fun WhiteBoard() {
                         val sketch = Sketch(
                             start = change.position - dragAmount,
                             end = change.position,
-                            color = inUsedColor.value,
+                            color = Color(inUsedColor.value),
                             width = brushSize.value.dp,
                         )
                         sketches.add(sketch)
