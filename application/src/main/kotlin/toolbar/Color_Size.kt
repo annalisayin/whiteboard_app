@@ -27,13 +27,16 @@ fun BrushSizeSelector(brushSize: MutableState<Int>) {
             valueRange = 0f..(strokeWidth.size - 1).toFloat(),
             steps = strokeWidth.size - 1,
         )
-
         Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(strokeWidth[sliderPosition.toInt()].dp)
-                .background(Color.Black)
-        )
+            modifier  = Modifier.height(52.dp).fillMaxWidth()
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(strokeWidth[sliderPosition.toInt()].dp)
+                    .background(Color.Black)
+            )
+        }
 
         Spacer(modifier = Modifier.height(15.dp))
     }

@@ -56,47 +56,53 @@ fun WhiteBoard() {
             println(e)
         }
     }
+
     val insendingSketches: MutableList<Sketch> = mutableListOf()
-    val sketchStatus = remember { mutableStateOf(false) }
     val inUsedColor = remember { mutableStateOf(0)}
     val brushSize = remember { mutableStateOf(1)}
     val shapeList = remember { mutableStateListOf<Shape>()}
     val textList = remember { mutableStateListOf<TextBox>()}
-    val textSelected = remember { mutableStateOf(false)}
-    val rectangleSelected = remember { mutableStateOf(false)}
-    val circleSelected = remember { mutableStateOf(false)}
-    val triangleSelected = remember { mutableStateOf(false)}
     val currentText = remember {mutableStateOf("hello")}
-    val deleteObjects = remember { mutableStateOf(false)}
     val currUser = User()
     val focusManager = LocalFocusManager.current
-    ToolSelection(sketchStatus, inUsedColor, brushSize, textSelected, currentText, rectangleSelected, circleSelected, triangleSelected, deleteObjects, currUser)
+
+    val currentTool = remember {mutableStateOf(-1)}
+    //val recentObject = remember { mutableStateListOf<Number>()}
+    /* -1 = default (none)
+        0 = pen
+        1 = rectangle
+        2 = circle
+        3 = triangle
+        4 = text */
+
+    ToolSelection(currentTool, inUsedColor, brushSize, currentText, currUser)
+
     Box(modifier = Modifier
         .background(Color.Blue)
         .fillMaxSize()
         .pointerInput(Unit) {
             detectTapGestures(
                 onTap = { tapOffset ->
-                    if ( rectangleSelected.value ) {
+                    if ( currentTool.value == 1) {
                          val newRec = Rectangle(offset = tapOffset, color = Color(inUsedColor.value), size = brushSize.value.dp)
                          shapeList.add(newRec)
-                        rectangleSelected.value = false
+                        currentTool.value = -1
                     }
-                    if ( circleSelected.value ) {
+                    if ( currentTool.value == 2) {
                         val newCir = Circle(offset = tapOffset, color = Color(inUsedColor.value), size = brushSize.value.dp)
                         shapeList.add(newCir)
-                        circleSelected.value = false
+                        currentTool.value = -1
                     }
-                    if ( triangleSelected.value ) {
+                    if ( currentTool.value == 3 ) {
                         val newTri = Triangle(offset = tapOffset, color = Color(inUsedColor.value), size = brushSize.value.dp)
                         shapeList.add(newTri)
-                        triangleSelected.value = false
+                        currentTool.value = -1
                     }
-                    if (textSelected.value){
+                    if (currentTool.value == 4){
                         println(currentText.value)
                         val newText = TextBox(offset = tapOffset, currentText.value, color = Color(inUsedColor.value), size = brushSize.value.dp)
                         textList.add(newText)
-                        textSelected.value = false
+                        currentTool.value = -1
                     }
                     focusManager.clearFocus()
                 }
@@ -112,7 +118,7 @@ fun WhiteBoard() {
                 detectDragGestures(
                     onDrag = { change, dragAmount ->
                     change.consume()
-                    if (sketchStatus.value) {
+                    if (currentTool.value == 0) {
                         val startOffset = change.position - dragAmount
                         val endOffset = change.position
                         val sketch = Sketch(
@@ -167,9 +173,5 @@ fun WhiteBoard() {
         }
         shapeList.forEach { shape -> shape.draw() }
         textList.forEach { text -> text.draw() }
-        if (deleteObjects.value) {
-            shapeList.removeLastOrNull()
-            deleteObjects.value = false
-        }
     }
 }

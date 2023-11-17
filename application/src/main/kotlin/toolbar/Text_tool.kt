@@ -17,26 +17,26 @@ import androidx.compose.ui.window.PopupProperties
 import data.TextBox
 
 @Composable
-fun Text_tool(textSelected: MutableState<Boolean>, currentText: MutableState<String>) {
-    //val openDialog = remember { mutableStateOf(false) }
+fun Text_tool(currentText: MutableState<String>, currentTool: MutableState<Int>, ) {
     val buttonTitle = remember {
         mutableStateOf("Show Pop Up")
     }
-    //val color = if (textSelected.value) Color.Green else Color.Gray
+    val color = if (currentTool.value == 4) Color.Green else Color.Gray
     var text by remember { mutableStateOf(TextFieldValue()) }
-//    isInTextMode.value = openDialog.value
     currentText.value = text.text
     Button(
         modifier = Modifier
-            .padding(30.dp),
-        onClick = {
-            textSelected.value = !textSelected.value
-        },
+            .padding(30.dp)
+            .height(50.dp),
+    onClick = {
+            currentTool.value = if (currentTool.value == 4) -1 else 4
+                  },
+        colors = ButtonDefaults.buttonColors(backgroundColor = color)
     ) {
-        Text("A", fontSize = 20.sp)
+        Text("A", fontSize = 22.sp)
     }
     Box{
-        if (textSelected.value) {
+        if (currentTool.value == 4) {
             buttonTitle.value = "Hide Pop Up"
             TextField(modifier = Modifier
                 //.align(Alignment.Center)
