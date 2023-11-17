@@ -3,6 +3,13 @@
 ## Wiki page
 https://git.uwaterloo.ca/k4tieu/cs346-project-fall-2023/-/wikis/Project-Proposal
 
+## Software Releases
+Sprint 3:
+    - started adding backend functionality (drawing and text saved to state)
+    - ability to undo added objects on canvas
+    - added username input and ability to save users
+Link to installer: 
+
 ## Getting started
 
 To make it easy for you to get started with GitLab, here's a list of recommended next steps.
