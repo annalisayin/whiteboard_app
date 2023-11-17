@@ -92,7 +92,7 @@ fun WhiteBoard() {
                     }
                     if (textSelected.value){
                         println(currentText.value)
-                        val newText = TextBox(offset = tapOffset, currentText.value)
+                        val newText = TextBox(currentText.value, tapOffset.x, tapOffset.y)
                         textList.add(newText)
                         textSelected.value = false
                     }

@@ -12,28 +12,29 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import kotlinx.serialization.Serializable
 
-
-class TextBox(var offset: Offset, private var curtext: String) {
-
+@Serializable
+class TextBox(private var curtext: String, var offsetX: Float, var offsetY: Float) {
     @Composable
     fun draw(){
-        SimpleFilledTextField(curtext, offset)
+        SimpleFilledTextField(curtext, offsetX, offsetY)
     }
 }
 @Composable
-fun SimpleFilledTextField(curtext: String, offset: Offset) {
+fun SimpleFilledTextField(curtext: String, offsetX: Float, offsetY: Float) {
     var text by remember { mutableStateOf(curtext) }
-    var offsetX = remember { mutableStateOf(offset.x.dp/2) }
-    var offsetY = remember { mutableStateOf(offset.y.dp/2) }
+    val offset = Offset(offsetX, offsetY)
+    var x = remember { mutableStateOf(offset.x.dp/2) }
+    var y = remember { mutableStateOf(offset.y.dp/2) }
     Box(
         modifier = Modifier
-            .offset(offsetX.value, offsetY.value)
+            .offset(x.value, y.value)
             .pointerInput(Unit) {
                 detectDragGestures { change, dragAmount ->
                     change.consume()
-                    offsetX.value += dragAmount.x.dp / 2
-                    offsetY.value += dragAmount.y.dp / 2
+                    x.value += dragAmount.x.dp / 2
+                    y.value += dragAmount.y.dp / 2
                 }
             }
             .padding(10.dp)
