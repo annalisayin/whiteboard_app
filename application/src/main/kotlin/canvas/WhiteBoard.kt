@@ -30,8 +30,15 @@ fun WhiteBoard() {
     val circleSelected = remember { mutableStateOf(false)}
     val triangleSelected = remember { mutableStateOf(false)}
     val currentText = remember {mutableStateOf("hello")}
-    val deleteObjects = remember { mutableStateOf(false)}
-    ToolSelection(sketchStatus, inUsedColor, brushSize, textSelected, currentText, rectangleSelected, circleSelected, triangleSelected, deleteObjects)
+    val undoSelected = remember { mutableStateOf(false)}
+    val recentObject = remember { mutableStateListOf<Number>()}
+    /*
+        -1 = default (none)
+        0 = pen
+        1 = shape
+        2 = text
+     */
+    ToolSelection(sketchStatus, inUsedColor, brushSize, textSelected, currentText, rectangleSelected, circleSelected, triangleSelected, undoSelected)
 
     // box acting as the real canvas, encompassing all composables and elements drawn
     Box(modifier = Modifier
@@ -40,26 +47,30 @@ fun WhiteBoard() {
         .pointerInput(Unit) {
             detectTapGestures(
                 onTap = { tapOffset ->
-                    if ( rectangleSelected.value ) {
-                         val newRec = Rectangle(offset = tapOffset, color = inUsedColor.value)
-                         shapeList.add(newRec)
+                    if (rectangleSelected.value) {
+                        val newRec = Rectangle(offset = tapOffset, color = inUsedColor.value)
+                        shapeList.add(newRec)
                         rectangleSelected.value = false
+                        recentObject.add(1)
                     }
-                    if ( circleSelected.value ) {
+                    if (circleSelected.value) {
                         val newCir = Circle(offset = tapOffset, color = inUsedColor.value)
                         shapeList.add(newCir)
                         circleSelected.value = false
+                        recentObject.add(1)
                     }
-                    if ( triangleSelected.value ) {
+                    if (triangleSelected.value) {
                         val newTri = Triangle(offset = tapOffset, color = inUsedColor.value)
                         shapeList.add(newTri)
                         triangleSelected.value = false
+                        recentObject.add(1)
                     }
                     if (textSelected.value){
                         println(currentText.value)
                         val newText = TextBox(offset = tapOffset, currentText.value)
                         textList.add(newText)
                         textSelected.value = false
+                        recentObject.add(2)
                     }
                 }
             )
@@ -81,6 +92,7 @@ fun WhiteBoard() {
                             width = brushSize.value.dp,
                         )
                         sketches.add(sketch)
+                        recentObject.add(0)
                     }
                 }
 
@@ -98,9 +110,30 @@ fun WhiteBoard() {
         }
         shapeList.forEach { shape -> shape.draw() }
         textList.forEach { text -> text.draw() }
-        if (deleteObjects.value) {
-            shapeList.removeLastOrNull()
-            deleteObjects.value = false
+        if (undoSelected.value) {
+            when(recentObject.last()){
+                0 -> {
+                    for(i in sketches.indices.reversed()){
+                        if(i > 0 && sketches[i].start == sketches[i-1].end){
+                            sketches.removeLastOrNull()
+                            recentObject.removeLastOrNull()
+                        } else{
+                            break;
+                        }
+                    }
+                    sketches.removeLastOrNull()
+                    recentObject.removeLastOrNull()
+                }
+                1 -> {
+                    shapeList.removeLastOrNull()
+                    recentObject.removeLastOrNull()
+                }
+                2 -> {
+                    textList.removeLastOrNull()
+                    recentObject.removeLastOrNull()
+                }
+            }
+            undoSelected.value = false
         }
     }
 }
