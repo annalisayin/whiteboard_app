@@ -26,7 +26,8 @@ fun Text_tool(currentTool: MutableState<Int>, currentText: MutableState<String>)
     currentText.value = text.text
     Button(
         modifier = Modifier
-            .padding(30.dp),
+            .padding(30.dp)
+            .height(50.dp),
         onClick = {
             currentTool.value = if (currentTool.value == 4) -1 else 4
         },

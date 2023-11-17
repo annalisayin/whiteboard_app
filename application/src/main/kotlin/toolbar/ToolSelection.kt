@@ -22,8 +22,9 @@ fun ToolSelection(
 ) {
     MaterialTheme {
         Text("TOOL BAR")
-        Spacer(modifier = Modifier.height(20.dp))
+        //Spacer(modifier = Modifier.height(20.dp))
         Row(
+            modifier = Modifier.height(300.dp),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -31,8 +32,7 @@ fun ToolSelection(
             Brush_tool(inUsedColor, brushSize, currentTool)
             Shapes_tool(currentTool)
             Text_tool(currentTool, currentText)
-            Selection_tool()
-            Delete_tool(currentTool)
+            Undo_tool(currentTool)
         }
     }
 }

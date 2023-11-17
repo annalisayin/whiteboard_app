@@ -25,7 +25,7 @@ class Triangle(offset: Offset, color: Color) : Shape(offset, color) {
     }
 }
 
-private val TriangleShape = GenericShape { size, _ ->
+val TriangleShape = GenericShape { size, _ ->
     // 1)
     moveTo(size.width / 2f, 0f)
 

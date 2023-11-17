@@ -20,7 +20,8 @@ fun Brush_tool(inUsedColor: MutableState<Color>, brushSize: MutableState<Int>, c
     val color = if (currentTool.value == 0) Color.Green else Color.Gray
     Button(
             modifier = Modifier
-                .padding(30.dp),
+                .padding(30.dp)
+                .height(50.dp),
             onClick = {
                 //openDialog.value = !openDialog.value
                 currentTool.value = if (currentTool.value == 0) -1 else 0
