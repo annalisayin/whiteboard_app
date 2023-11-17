@@ -15,15 +15,10 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun ToolSelection(
-    useSketch: MutableState<Boolean>,
+    currentTool: MutableState<Int>,
     inUsedColor: MutableState<Color>,
     brushSize: MutableState<Int>,
-    textSelected: MutableState<Boolean>,
     currentText: MutableState<String>,
-    rectangleSelected: MutableState<Boolean>,
-    circleSelected: MutableState<Boolean>,
-    triangleSelected: MutableState<Boolean>,
-    deleteObjects: MutableState<Boolean>
 ) {
     MaterialTheme {
         Text("TOOL BAR")
@@ -33,11 +28,11 @@ fun ToolSelection(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Color_Size(inUsedColor, brushSize)
-            Shapes_tool(rectangleSelected, circleSelected, triangleSelected)
-            Brush_tool(inUsedColor, brushSize, useSketch)
-            Text_tool(textSelected, currentText)
+            Brush_tool(inUsedColor, brushSize, currentTool)
+            Shapes_tool(currentTool)
+            Text_tool(currentTool, currentText)
             Selection_tool()
-            Delete_tool(deleteObjects)
+            Delete_tool(currentTool)
         }
     }
 }

@@ -11,6 +11,7 @@ import androidx.compose.material.Icon
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.icons.*
 import androidx.compose.material.icons.filled.*
 import androidx.compose.ui.window.PopupProperties
@@ -19,19 +20,20 @@ import data.Shape
 import data.Rectangle
 
 @Composable
-fun Shapes_tool(rectangleSelected: MutableState<Boolean>, circleSelected: MutableState<Boolean>, triangleSelected: MutableState<Boolean>) {
-
+fun Shapes_tool(currentTool: MutableState<Int>) {
     val openDialog = remember { mutableStateOf(false) }
     val buttonTitle = remember {
         mutableStateOf("Show Pop Up")
     }
+    val color = if (currentTool.value in 1 ..3) Color.Green else Color.Gray
     // Define a variable to track the selected shape type
     Button(
         modifier = Modifier
             .padding(10.dp),
         onClick = {
             openDialog.value = !openDialog.value
-        }
+        },
+        colors = ButtonDefaults.buttonColors(backgroundColor = color)
     ) {
         Icon(Icons.Filled.Star, contentDescription = "Localized description")
     }
@@ -54,7 +56,7 @@ fun Shapes_tool(rectangleSelected: MutableState<Boolean>, circleSelected: Mutabl
                                 modifier = Modifier
                                     .padding(10.dp),
                                 onClick = {
-                                    rectangleSelected.value = !rectangleSelected.value
+                                    currentTool.value = if (currentTool.value == 1) -1 else 1
                                     openDialog.value = !openDialog.value
                                 }
                             ) {
@@ -64,7 +66,7 @@ fun Shapes_tool(rectangleSelected: MutableState<Boolean>, circleSelected: Mutabl
                                 modifier = Modifier
                                     .padding(10.dp),
                                 onClick = {
-                                    circleSelected.value = !circleSelected.value
+                                    currentTool.value = if (currentTool.value == 2) -1 else 2
                                     openDialog.value = !openDialog.value
                                 }
                             ) {
@@ -73,7 +75,7 @@ fun Shapes_tool(rectangleSelected: MutableState<Boolean>, circleSelected: Mutabl
                             Button(
                                 modifier = Modifier.padding(10.dp),
                                 onClick = {
-                                    triangleSelected.value = !triangleSelected.value
+                                    currentTool.value = if (currentTool.value == 3) -1 else 3
                                     openDialog.value = !openDialog.value
                                 }
                             ) {
