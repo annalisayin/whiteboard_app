@@ -10,13 +10,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
 @Composable
 fun ToolSelection(
     useSketch: MutableState<Boolean>,
-    inUsedColor: MutableState<Color>,
+    inUsedColor: MutableState<Int>,
     brushSize: MutableState<Int>,
     textSelected: MutableState<Boolean>,
     currentText: MutableState<String>,
