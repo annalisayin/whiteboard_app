@@ -13,7 +13,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun Brush_tool(useSketch: MutableState<Boolean>) {
+fun Brush_tool(inUsedColor: MutableState<Int>, brushSize: MutableState<Int>, useSketch: MutableState<Boolean>) {
     val color = if (useSketch.value) Color.Green else Color.Gray
     Button(
             modifier = Modifier

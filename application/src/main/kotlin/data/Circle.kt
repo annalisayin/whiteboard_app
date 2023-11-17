@@ -17,8 +17,8 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
-class Circle(offset: Offset, color: Color, size: Dp) : Shape(offset, color, size) {
-    //var size = 100.dp
+class Circle(offset: Offset, color: Color) : Shape(offset, color) {
+    var size = 100.dp
     @Composable
     override fun draw() {
         CircleComposable(color = color, offset = offset, size = size)
@@ -30,7 +30,7 @@ fun CircleComposable(color: Color, offset: Offset, size: Dp){
     // Column(modifier = Modifier.offset(offset.x.dp, offset.y.dp)) {
     var offsetX = remember { mutableStateOf(offset.x.dp/2) }
     var offsetY = remember { mutableStateOf(offset.y.dp/2) }
-    var size_m = size * 10
+    var size_m = size
     println(offset.x.toString() + " " + offset.y.toString())
     Box(
         modifier = Modifier
