@@ -73,7 +73,7 @@ fun ColorPicker(inUsedColor: MutableState<Color>) {
 }
 
 @Composable
-fun Color_Size(inUsedColor: MutableState<Int>, brushSize: MutableState<Int>) {
+fun Color_Size(inUsedColor: MutableState<Color>, brushSize: MutableState<Int>) {
     Column(Modifier .padding(30.dp)) {
         ColorPicker(inUsedColor)
         BrushSizeSelector(brushSize)
