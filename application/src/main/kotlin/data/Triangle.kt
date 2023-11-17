@@ -17,8 +17,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
-class Triangle(offset: Offset, color: Color) : Shape(offset, color) {
-    var size = 100.dp
+class Triangle(offset: Offset, color: Color, size: Dp) : Shape(offset, color, size) {
     @Composable
     override fun draw() {
         TriangleComposable(color = color, offset = offset, size = size)
@@ -40,7 +39,7 @@ fun TriangleComposable(color: Color, offset: Offset, size: Dp){
     // Column(modifier = Modifier.offset(offset.x.dp, offset.y.dp)) {
     var offsetX = remember { mutableStateOf(offset.x.dp/2) }
     var offsetY = remember { mutableStateOf(offset.y.dp/2) }
-    var size_m = size
+    var size_m = size * 10
     println(offset.x.toString() + " " + offset.y.toString())
     Box(
         modifier = Modifier

@@ -12,6 +12,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import data.*
@@ -76,23 +77,23 @@ fun WhiteBoard() {
             detectTapGestures(
                 onTap = { tapOffset ->
                     if ( rectangleSelected.value ) {
-                         val newRec = Rectangle(offset = tapOffset, color = Color(inUsedColor.value))
+                         val newRec = Rectangle(offset = tapOffset, color = Color(inUsedColor.value), size = brushSize.value.dp)
                          shapeList.add(newRec)
                         rectangleSelected.value = false
                     }
                     if ( circleSelected.value ) {
-                        val newCir = Circle(offset = tapOffset, color = Color(inUsedColor.value))
+                        val newCir = Circle(offset = tapOffset, color = Color(inUsedColor.value), size = brushSize.value.dp)
                         shapeList.add(newCir)
                         circleSelected.value = false
                     }
                     if ( triangleSelected.value ) {
-                        val newTri = Triangle(offset = tapOffset, color = Color(inUsedColor.value))
+                        val newTri = Triangle(offset = tapOffset, color = Color(inUsedColor.value), size = brushSize.value.dp)
                         shapeList.add(newTri)
                         triangleSelected.value = false
                     }
                     if (textSelected.value){
                         println(currentText.value)
-                        val newText = TextBox(offset = tapOffset, currentText.value)
+                        val newText = TextBox(offset = tapOffset, currentText.value, color = Color(inUsedColor.value), size = brushSize.value.dp)
                         textList.add(newText)
                         textSelected.value = false
                     }
@@ -158,6 +159,7 @@ fun WhiteBoard() {
                     start = Offset(sketch.startX, sketch.startY),
                     end = Offset(sketch.endX, sketch.endY),
                     strokeWidth = sketch.width.dp.toPx(),
+                    cap = StrokeCap.Round
                 )
             }
         }
