@@ -33,7 +33,7 @@ fun Text_tool(currentTool: MutableState<Int>, currentText: MutableState<String>)
         },
         colors = ButtonDefaults.buttonColors(backgroundColor = color)
     ) {
-        Text("A", fontSize = 20.sp)
+        Text("A", fontSize = 22.sp)
     }
     Box{
         if (currentTool.value == 4) {

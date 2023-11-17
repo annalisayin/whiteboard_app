@@ -28,21 +28,13 @@ fun WhiteBoard() {
     val textList = remember { mutableStateListOf<TextBox>()}
 
     val currentTool = remember {mutableStateOf(-1)}
-    /*
-        -1 = default (none)
+    val recentObject = remember { mutableStateListOf<Number>()}
+    /* -1 = default (none)
         0 = pen
         1 = rectangle
         2 = circle
         3 = triangle
-        4 = text
-     */
-    val recentObject = remember { mutableStateListOf<Number>()}
-    /*
-        -1 = default (none)
-        0 = pen
-        1 = shape
-        2 = text
-     */
+        4 = text */
 
     ToolSelection(currentTool, inUsedColor, brushSize, currentText)
 
@@ -63,20 +55,20 @@ fun WhiteBoard() {
                         val newCir = Circle(offset = tapOffset, color = inUsedColor.value)
                         shapeList.add(newCir)
                         currentTool.value = -1
-                        recentObject.add(1)
+                        recentObject.add(2)
                     }
                     if (currentTool.value == 3) {
                         val newTri = Triangle(offset = tapOffset, color = inUsedColor.value)
                         shapeList.add(newTri)
                         currentTool.value = -1
-                        recentObject.add(1)
+                        recentObject.add(3)
                     }
                     if (currentTool.value == 4){
                         println(currentText.value)
                         val newText = TextBox(offset = tapOffset, currentText.value)
                         textList.add(newText)
                         currentTool.value = -1
-                        recentObject.add(2)
+                        recentObject.add(4)
                     }
                 }
             )
@@ -117,7 +109,7 @@ fun WhiteBoard() {
         shapeList.forEach { shape -> shape.draw() }
         textList.forEach { text -> text.draw() }
         if (currentTool.value == 5) {
-            when(recentObject.last()){
+            when(recentObject.lastOrNull()){
                 0 -> {
                     for(i in sketches.indices.reversed()){
                         if(i > 0 && sketches[i].start == sketches[i-1].end){
@@ -130,11 +122,11 @@ fun WhiteBoard() {
                     sketches.removeLastOrNull()
                     recentObject.removeLastOrNull()
                 }
-                1 -> {
+                1, 2, 3 -> {
                     shapeList.removeLastOrNull()
                     recentObject.removeLastOrNull()
                 }
-                2 -> {
+                4 -> {
                     textList.removeLastOrNull()
                     recentObject.removeLastOrNull()
                 }
