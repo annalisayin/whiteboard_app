@@ -14,6 +14,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import data.*
 import io.ktor.client.*
@@ -67,9 +68,9 @@ fun WhiteBoard() {
     val triangleSelected = remember { mutableStateOf(false)}
     val currentText = remember {mutableStateOf("hello")}
     val deleteObjects = remember { mutableStateOf(false)}
-    ToolSelection(sketchStatus, inUsedColor, brushSize, textSelected, currentText, rectangleSelected, circleSelected, triangleSelected, deleteObjects)
-
-    // box acting as the real canvas, encompassing all composables and elements drawn
+    val currUser = User()
+    val focusManager = LocalFocusManager.current
+    ToolSelection(sketchStatus, inUsedColor, brushSize, textSelected, currentText, rectangleSelected, circleSelected, triangleSelected, deleteObjects, currUser)
     Box(modifier = Modifier
         .background(Color.Blue)
         .fillMaxSize()
@@ -97,6 +98,7 @@ fun WhiteBoard() {
                         textList.add(newText)
                         textSelected.value = false
                     }
+                    focusManager.clearFocus()
                 }
             )
         }, //contentAlignment = Alignment.TopStart
