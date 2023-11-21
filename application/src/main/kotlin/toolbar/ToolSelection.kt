@@ -26,8 +26,7 @@ fun ToolSelection(
     rectangleSelected: MutableState<Boolean>,
     circleSelected: MutableState<Boolean>,
     triangleSelected: MutableState<Boolean>,
-    deleteObjects: MutableState<Boolean>,
-    user: User
+    deleteObjects: MutableState<Boolean>
 ) {
     val focusManager = LocalFocusManager.current
     MaterialTheme {
@@ -38,7 +37,7 @@ fun ToolSelection(
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            User_Login(user)
+            User_Login()
             Color_Size(inUsedColor, brushSize)
             Shapes_tool(rectangleSelected, circleSelected, triangleSelected)
             Brush_tool(inUsedColor, brushSize, useSketch)
