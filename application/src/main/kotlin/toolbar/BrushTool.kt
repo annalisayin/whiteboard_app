@@ -1,5 +1,6 @@
 package toolbar
 
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
@@ -13,14 +14,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun Brush_tool(inUsedColor: MutableState<Int>, brushSize: MutableState<Int>, useSketch: MutableState<Boolean>) {
-    val color = if (useSketch.value) Color.Green else Color.Gray
+fun Brush_tool(inUsedColor: MutableState<Int>, brushSize: MutableState<Int>, currentTool: MutableState<Int>) {
+    val color = if (currentTool.value == 0) Color.Green else Color.Gray
     Button(
             modifier = Modifier
-                .padding(30.dp),
+                .padding(30.dp)
+                .height(50.dp),
             onClick = {
                 //openDialog.value = !openDialog.value
-                useSketch.value = !useSketch.value
+                currentTool.value = if (currentTool.value == 0) -1 else 0
             },
         colors = ButtonDefaults.buttonColors(backgroundColor = color)
     ) {

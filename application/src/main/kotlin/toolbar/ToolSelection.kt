@@ -18,32 +18,33 @@ import data.User
 
 @Composable
 fun ToolSelection(
-    useSketch: MutableState<Boolean>,
+    currentTool: MutableState<Int>,
     inUsedColor: MutableState<Int>,
     brushSize: MutableState<Int>,
-    textSelected: MutableState<Boolean>,
+//    useSketch: MutableState<Boolean>,
+//    textSelected: MutableState<Boolean>,
     currentText: MutableState<String>,
-    rectangleSelected: MutableState<Boolean>,
-    circleSelected: MutableState<Boolean>,
-    triangleSelected: MutableState<Boolean>,
-    deleteObjects: MutableState<Boolean>
+//    rectangleSelected: MutableState<Boolean>,
+//    circleSelected: MutableState<Boolean>,
+//    triangleSelected: MutableState<Boolean>,
+//    deleteObjects: MutableState<Boolean>,
 ) {
     val focusManager = LocalFocusManager.current
     MaterialTheme {
         Text("TOOL BAR")
         Spacer(modifier = Modifier.height(20.dp))
         Row(
-            modifier = Modifier.pointerInput(Unit) { detectTapGestures(onTap = { focusManager.clearFocus() }) },
+            modifier = Modifier
+                .pointerInput(Unit) { detectTapGestures(onTap = { focusManager.clearFocus() }) }
+                .height(300.dp),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically,
         ) {
             User_Login()
             Color_Size(inUsedColor, brushSize)
-            Shapes_tool(rectangleSelected, circleSelected, triangleSelected)
-            Brush_tool(inUsedColor, brushSize, useSketch)
-            Text_tool(textSelected, currentText)
-            Selection_tool()
-            Delete_tool(deleteObjects)
+            Shapes_tool(currentTool)
+            Brush_tool(inUsedColor, brushSize, currentTool)
+            Text_tool(currentText, currentTool)
         }
     }
 }
