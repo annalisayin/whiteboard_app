@@ -29,66 +29,6 @@ fun Application.configureWhiteboard() {
         val incomingSketches: MutableList<Sketch> = mutableListOf()
         val connectedUsers: MutableList<User> = mutableListOf()
 
-//        val clientsChannel = Channel<Set<User>>(Channel.BUFFERED)
-//
-//        fun DefaultWebSocketSession.sendUpdateToClient(users: Set<User>) {
-//            val userJson = Json.encodeToString(users.toList())
-//
-//            // Launch a coroutine to send the update
-//            CoroutineScope(Dispatchers.IO).launch {
-//                try {
-//                    send(Frame.Text(userJson))
-//                } catch (e: Exception) {
-//                    println("Error sending update to client: $e")
-//                }
-//            }
-//        }
-//
-//        suspend fun DefaultWebSocketSession.sendUpdateToClients() {
-//            clientsChannel.send(connectedUsers)
-//        }
-//
-//        webSocket("/user") {
-//            try {
-//                for (frame in incoming) {
-//                    if (frame is Frame.Text) {
-//                        val receivedText = frame.readText()
-//
-//                        val username = Json.decodeFromString<User>(receivedText)
-//
-//                        insertUser(username)
-//                        connectedUsers.add(username)
-//
-//                        // Send updates to all connected clients
-//                        sendUpdateToClients()
-//
-//                        println("Connected Users: $connectedUsers")
-//
-//                        send(Frame.Text("Welcome, $username!"))
-//                    }
-//                }
-//            } catch (e: Exception) {
-//                println("Error handling user WebSocket: $e")
-//            }
-//        }
-//
-//        webSocket("/users") {
-//            try {
-//                for (frame in incoming) {
-//                    frame as? Frame.Text ?: continue
-//                    sendUpdateToClient(connectedUsers)
-//                }
-//            } catch (e: Exception) {
-//                println("Error handling users WebSocket: $e")
-//            }
-//        }
-//
-//        get("/connected-users") {
-//            val users = findAllUsers().map { row -> row.toUser() }
-//            val json = Json.encodeToString(users)
-//            call.respondText(json, contentType = ContentType.Application.Json)
-//        }
-
         webSocket("/sketch") {
             for (frame in incoming) {
                 frame as? Frame.Text ?: continue
@@ -152,21 +92,5 @@ fun Application.configureWhiteboard() {
             call.respondText(json, contentType = ContentType.Application.Json)
         }
 
-        // POST endpoint to insert a new sketch
-//        post("/sketch") {
-//            val sketchRequest = call.receive<Sketch>() // Receive the JSON request and deserialize it to a Sketch object
-//            insertSketch(sketchRequest) // Insert the received sketch into the database
-//            call.respondText("Sketch inserted successfully", status = HttpStatusCode.Created)
-//        }
-
-//        post("/users") {
-//            try {
-//                val user = call.receive<User>()
-//                insertUser(user) // Call a function to insert the user into the database (you need to implement this)
-//                call.respond(HttpStatusCode.Created, "User created successfully")
-//            } catch (e: Exception) {
-//                call.respond(HttpStatusCode.BadRequest, "Failed to create user: ${e.message}")
-//            }
-//        }
     }
 }
