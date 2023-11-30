@@ -5,10 +5,7 @@ import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -63,7 +60,8 @@ fun WhiteBoard() {
     val shapeList = remember { mutableStateListOf<Shape>()}
     val textList = remember { mutableStateListOf<TextBox>()}
     val currentText = remember {mutableStateOf("hello")}
-    val currUser = User()
+    val deleteObjects = remember { mutableStateOf(false)}
+
     val focusManager = LocalFocusManager.current
 
     val currentTool = remember {mutableStateOf(-1)}
@@ -75,7 +73,7 @@ fun WhiteBoard() {
         3 = triangle
         4 = text */
 
-    ToolSelection(currentTool, inUsedColor, brushSize, currentText, currUser)
+    ToolSelection(currentTool, inUsedColor, brushSize, currentText)
 
     Box(modifier = Modifier
         .background(Color.Blue)
