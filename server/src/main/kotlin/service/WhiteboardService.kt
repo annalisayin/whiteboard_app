@@ -1,9 +1,6 @@
 package service
 
-import models.Sketch
-import models.SketchModel
-import models.User
-import models.UserModel
+import models.*
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.insertAndGetId
 import org.jetbrains.exposed.sql.insert
@@ -30,6 +27,12 @@ fun insertSketch(sketch: Sketch) {
             it[color] = sketch.color
             it[width] = sketch.width
         }
+    }
+}
+
+fun insertTextbox(tb: TextBox) {
+    val id = TBModel.insertAndGetId {
+
     }
 }
 
