@@ -8,7 +8,7 @@ Sprint 3:
     - started adding backend functionality (drawing and text saved to state)
     - ability to undo added objects on canvas
     - added username input and ability to save users
-Link to installer: https://uofwaterloo-my.sharepoint.com/:u:/g/personal/k4tieu_uwaterloo_ca/EZ7o_iWEC2FGvWa5DDXSznEBtbpleAmS36fsIpMesCqitw?e=zPKCrg
+Link to installer: https://git.uwaterloo.ca/k4tieu/cs346-project-fall-2023/-/tree/main/application_installer?ref_type=heads
 
 ## Getting started
 
