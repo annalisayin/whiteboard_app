@@ -16,6 +16,9 @@ Run this command to pull the docker image for the server: docker pull tk2k2/cs34
 
 Run this command to run the docker image for the server: docker run -d -p 8080:8080 tk2k2/cs346-server
 
+##  To generate JAR file for the server:
+https://www.jetbrains.com/help/idea/compiling-applications.html#package_into_jar
+
 ## Getting started
 
 To make it easy for you to get started with GitLab, here's a list of recommended next steps.
