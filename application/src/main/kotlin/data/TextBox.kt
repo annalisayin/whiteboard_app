@@ -16,31 +16,32 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.sp
+import kotlinx.serialization.Serializable
 
-
-class TextBox(var offset: Offset, private var curtext: String, var color: Color, var size: Dp) {
+@Serializable
+//class TextBox(var offset: Offset, private var curtext: String, var color: Color, var size: Dp) {
+class TextBox(var offsetX: Int, var offsetY: Int, private var curtext: String, var color: Int, var size: Int) {
     @Composable
     fun draw(){
-        SimpleFilledTextField(curtext, offset, color, size)
+        SimpleFilledTextField(curtext, offsetX, offsetY, color, size)
     }
 }
 
 @Composable
-fun dpToSp(dp: Dp) = with(LocalDensity.current) { dp.toSp() }
-
-@Composable
-fun SimpleFilledTextField(curtext: String, offset: Offset, color: Color, size: Dp) {
+fun SimpleFilledTextField(curtext: String, offsetX: Int, offsetY: Int, color: Int, size: Int) {
     var text by remember { mutableStateOf(curtext) }
-    var offsetX = remember { mutableStateOf(offset.x.dp/2) }
-    var offsetY = remember { mutableStateOf(offset.y.dp/2) }
+    val mutableOffsetX = remember {mutableStateOf(offsetX)}
+    val mutableOffsetY = remember {mutableStateOf(offsetY)}
+
     Box(
         modifier = Modifier
-            .offset(offsetX.value, offsetY.value)
+            .offset(mutableOffsetX.value.dp, mutableOffsetY.value.dp)
             .pointerInput(Unit) {
                 detectDragGestures { change, dragAmount ->
                     change.consume()
-                    offsetX.value += dragAmount.x.dp / 2
-                    offsetY.value += dragAmount.y.dp / 2
+                    mutableOffsetX.value += dragAmount.x.toInt() / 2
+                    mutableOffsetY.value += dragAmount.y.toInt() / 2
                 }
             }
             .padding(10.dp)
@@ -50,7 +51,7 @@ fun SimpleFilledTextField(curtext: String, offset: Offset, color: Color, size: D
                 .width(IntrinsicSize.Min),
             value = text,
             onValueChange = { text = it },
-            textStyle = TextStyle(color = color, fontSize = dpToSp(size * 5))
+            textStyle = TextStyle(color = Color(color), fontSize = (size*5).sp)
         )
     }
 

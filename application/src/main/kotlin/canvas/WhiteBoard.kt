@@ -98,7 +98,7 @@ fun WhiteBoard() {
                     }
                     if (currentTool.value == 4){
                         println(currentText.value)
-                        val newText = TextBox(offset = tapOffset, currentText.value, color = Color(inUsedColor.value), size = brushSize.value.dp)
+                        val newText = TextBox(offsetX = tapOffset.x.toInt(), offsetY = tapOffset.y.toInt(), currentText.value, color = inUsedColor.value, size = brushSize.value)
                         textList.add(newText)
                         currentTool.value = -1
                     }
