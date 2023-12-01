@@ -8,10 +8,12 @@ Sprint 3:
     - started adding backend functionality (drawing and text saved to state)
     - ability to undo added objects on canvas
     - added username input and ability to save users
+
 Link to installer: https://git.uwaterloo.ca/k4tieu/cs346-project-fall-2023/-/tree/main/application_installer?ref_type=heads
 
 ##  To run the server:
 Run this command to pull the docker image for the server: docker pull tk2k2/cs346-server:latest
+
 Run this command to run the docker image for the server: docker run -d -p 8080:8080 tk2k2/cs346-server
 
 ## Getting started
