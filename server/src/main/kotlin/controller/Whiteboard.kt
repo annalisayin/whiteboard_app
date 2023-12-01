@@ -14,20 +14,15 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import models.Sketch
-import models.toSketch
-import service.findAllSketches
-import service.insertSketch
-import service.insertUser
-import models.User
-import models.toUser
-import service.findAllUsers
+import models.*
+import service.*
 
 
 fun Application.configureWhiteboard() {
     routing {
         val incomingSketches: MutableList<Sketch> = mutableListOf()
         val connectedUsers: MutableList<User> = mutableListOf()
+        val incomingRects: MutableList<Rectangle> = mutableListOf()
 
         webSocket("/sketch") {
             for (frame in incoming) {
@@ -89,6 +84,37 @@ fun Application.configureWhiteboard() {
         get("/connected-users") {
             val users = findAllUsers().map { row -> row.toUser() }
             val json = Json.encodeToString(users)
+            call.respondText(json, contentType = ContentType.Application.Json)
+        }
+
+        webSocket("/rect") {
+            for (frame in incoming) {
+                frame as? Frame.Text ?: continue
+                val receivedText = frame.readText()
+                val shapes = Json.decodeFromString<List<Rectangle>>(receivedText)
+                println(shapes)
+                for (s in shapes) {
+                    insertRectangle(s)
+                }
+                incomingRects.addAll(shapes)
+            }
+        }
+
+        webSocket("/rects") {
+            while (true) {
+                if (incomingRects.isNotEmpty()) {
+                    val shapeJson = Json.encodeToString(incomingRects)
+                    send(Frame.Text(shapeJson))
+                    incomingRects.clear()
+                }
+                delay(10) // Introduce a delay between iterations to allow other coroutines to run
+            }
+        }
+
+
+        get("/rects-list") {
+            val shapes = findAllRects().map { row -> row.toRectangle() }
+            val json = Json.encodeToString(shapes)
             call.respondText(json, contentType = ContentType.Application.Json)
         }
 

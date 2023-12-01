@@ -16,26 +16,28 @@ import androidx.compose.ui.input.pointer.consumeAllChanges
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import kotlinx.serialization.Serializable
 
-class Circle(offset: Offset, color: Color, size: Dp) : Shape(offset, color, size) {
-    @Composable
+@Serializable
+class Circle(override var x: Float, override var y: Float, override var color: Int, override var size: Int) : Shape() {
+@Composable
     override fun draw() {
-        CircleComposable(color = color, offset = offset, size = size)
+        CircleComposable(color = color, x = x, y = y, size = size)
     }
 }
 
 @Composable
-fun CircleComposable(color: Color, offset: Offset, size: Dp){
+fun CircleComposable(color: Int, x: Float, y: Float, size: Int) {
     // Column(modifier = Modifier.offset(offset.x.dp, offset.y.dp)) {
-    var offsetX = remember { mutableStateOf(offset.x.dp/2) }
-    var offsetY = remember { mutableStateOf(offset.y.dp/2) }
+    var offsetX = remember { mutableStateOf(x.dp/2) }
+    var offsetY = remember { mutableStateOf(y.dp/2) }
     var size_m = size * 10
-    println(offset.x.toString() + " " + offset.y.toString())
+    println(x.toString() + " " + y.toString())
     Box(
         modifier = Modifier
             .offset(offsetX.value, offsetY.value)
-            .size(size_m).clip(CircleShape)
-            .background(color)
+            .size(size_m.dp).clip(CircleShape)
+            .background(Color(color))
             .pointerInput(Unit) {
                 detectDragGestures { change, dragAmount ->
                     change.consume()

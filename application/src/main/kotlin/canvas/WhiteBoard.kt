@@ -31,7 +31,6 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import toolbar.ToolSelection
 
-
 @Composable
 fun WhiteBoard() {
     val client = HttpClient(CIO) {
@@ -44,10 +43,15 @@ fun WhiteBoard() {
         install(WebSockets)
     }
     val sketches = remember { mutableStateListOf<Sketch>() }
+    val shapeList = remember { mutableStateListOf<Shape>()}
+ //   val rectList = remember { mutableStateListOf<Rectangle>()}
+
     runBlocking {
         try {
             val responseSketches: List<Sketch> = Json.decodeFromString(client.get("http://localhost:8080/sketches-list").body())
+            val responseRects: List<Rectangle> = Json.decodeFromString(client.get("http://localhost:8080/rects-list").body())
             responseSketches.forEach { sketch: Sketch -> sketches.add(sketch) }
+            responseRects.forEach { shape: Shape -> shapeList.add(shape) }
         }
         catch (e: Exception) {
             println(e)
@@ -55,12 +59,12 @@ fun WhiteBoard() {
     }
 
     val insendingSketches: MutableList<Sketch> = mutableListOf()
+    val insendingShapes: MutableList<Shape> = mutableListOf()
     val inUsedColor = remember { mutableStateOf(0)}
     val brushSize = remember { mutableStateOf(1)}
-    val shapeList = remember { mutableStateListOf<Shape>()}
     val textList = remember { mutableStateListOf<TextBox>()}
     val currentText = remember {mutableStateOf("hello")}
-    val deleteObjects = remember { mutableStateOf(false)}
+ //   val deleteObjects = remember { mutableStateOf(false)}
 
     val focusManager = LocalFocusManager.current
 
@@ -82,18 +86,18 @@ fun WhiteBoard() {
             detectTapGestures(
                 onTap = { tapOffset ->
                     if ( currentTool.value == 1) {
-                         val newRec = Rectangle(offset = tapOffset, color = Color(inUsedColor.value), size = brushSize.value.dp)
-                         shapeList.add(newRec)
+                         val newRec = Rectangle(x = tapOffset.x, y = tapOffset.y, color = inUsedColor.value, size = brushSize.value)
+                         insendingShapes.add(newRec)
                         currentTool.value = -1
                     }
                     if ( currentTool.value == 2) {
-                        val newCir = Circle(offset = tapOffset, color = Color(inUsedColor.value), size = brushSize.value.dp)
-                        shapeList.add(newCir)
+                        val newCir = Circle(x = tapOffset.x, y = tapOffset.y, color = inUsedColor.value, size = brushSize.value)
+                        insendingShapes.add(newCir)
                         currentTool.value = -1
                     }
                     if ( currentTool.value == 3 ) {
-                        val newTri = Triangle(offset = tapOffset, color = Color(inUsedColor.value), size = brushSize.value.dp)
-                        shapeList.add(newTri)
+                        val newTri = Triangle(x = tapOffset.x, y = tapOffset.y, color = inUsedColor.value, size = brushSize.value)
+                        insendingShapes.add(newTri)
                         currentTool.value = -1
                     }
                     if (currentTool.value == 4){
@@ -102,6 +106,28 @@ fun WhiteBoard() {
                         textList.add(newText)
                         currentTool.value = -1
                     }
+
+                    CoroutineScope(Dispatchers.IO).launch {
+                        client.webSocket(method = HttpMethod.Get, host = "127.0.0.1", port = 8080, path = "/rect") {
+                            val shapesList = insendingShapes.toList()
+                            val shapesJson = Json.encodeToString(shapesList)
+                            send(Frame.Text(shapesJson))
+                            insendingShapes.clear()
+                        }
+                    }
+                    CoroutineScope(Dispatchers.IO).launch {
+                        client.webSocket(method = HttpMethod.Get, host = "127.0.0.1", port = 8080, path = "/rects") {
+                            for (frame in incoming) {
+                                frame as? Frame.Text ?: continue
+                                val shapeJson = frame.readText()
+
+                                // Deserialize the JSON string into a list of Sketch objects
+                                val responseShape: MutableList<Shape> = Json.decodeFromString(shapeJson)
+                                shapeList.addAll(responseShape)
+                            }
+                        }
+                    }
+
                     focusManager.clearFocus()
                 }
             )

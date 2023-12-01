@@ -1,9 +1,6 @@
 package service
 
-import models.Sketch
-import models.SketchModel
-import models.User
-import models.UserModel
+import models.*
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.insertAndGetId
 import org.jetbrains.exposed.sql.insert
@@ -49,4 +46,25 @@ fun findAllUsers(): List<ResultRow> {
             .toList()
     }
     return users
+}
+
+fun findAllRects(): List<ResultRow> {
+    var shapes = emptyList<ResultRow>()
+    transaction {
+        shapes = RectangleModel
+            .selectAll()
+            .toList()
+    }
+    return shapes
+}
+
+fun insertRectangle(s: Rectangle) {
+    transaction {
+        val id = RectangleModel.insertAndGetId {
+            it[x] = s.x
+            it[y] = s.y
+            it[color] = s.color
+            it[size] = s.size
+        }
+    }
 }
