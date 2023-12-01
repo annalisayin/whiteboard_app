@@ -9,7 +9,7 @@ object RectangleModel : IntIdTable() {
     val size = integer("size")
 }
 
-fun ResultRow.toRectangle(): Shape {
+fun ResultRow.toRectangle(): Rectangle {
     return Rectangle(
         this[RectangleModel.x],
         this[RectangleModel.y],

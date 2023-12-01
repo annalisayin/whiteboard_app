@@ -29,7 +29,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import toolbar.ToolSelection
+ import toolbar.ToolSelection
 
 @Composable
 fun WhiteBoard() {
@@ -44,14 +44,14 @@ fun WhiteBoard() {
     }
     val sketches = remember { mutableStateListOf<Sketch>() }
     val shapeList = remember { mutableStateListOf<Shape>()}
- //   val rectList = remember { mutableStateListOf<Rectangle>()}
+    val rectList = remember { mutableStateListOf<Rectangle>()}
 
     runBlocking {
         try {
             val responseSketches: List<Sketch> = Json.decodeFromString(client.get("http://localhost:8080/sketches-list").body())
             val responseRects: List<Rectangle> = Json.decodeFromString(client.get("http://localhost:8080/rects-list").body())
             responseSketches.forEach { sketch: Sketch -> sketches.add(sketch) }
-            responseRects.forEach { shape: Shape -> shapeList.add(shape) }
+            responseRects.forEach { r: Rectangle -> rectList.add(r) }
         }
         catch (e: Exception) {
             println(e)
@@ -59,7 +59,7 @@ fun WhiteBoard() {
     }
 
     val insendingSketches: MutableList<Sketch> = mutableListOf()
-    val insendingShapes: MutableList<Shape> = mutableListOf()
+    val insendingRect: MutableList<Rectangle> = mutableListOf()
     val inUsedColor = remember { mutableStateOf(0)}
     val brushSize = remember { mutableStateOf(1)}
     val textList = remember { mutableStateListOf<TextBox>()}
@@ -87,17 +87,17 @@ fun WhiteBoard() {
                 onTap = { tapOffset ->
                     if ( currentTool.value == 1) {
                          val newRec = Rectangle(x = tapOffset.x, y = tapOffset.y, color = inUsedColor.value, size = brushSize.value)
-                         insendingShapes.add(newRec)
+                         insendingRect.add(newRec)
                         currentTool.value = -1
                     }
                     if ( currentTool.value == 2) {
                         val newCir = Circle(x = tapOffset.x, y = tapOffset.y, color = inUsedColor.value, size = brushSize.value)
-                        insendingShapes.add(newCir)
+                     //   insendingShapes.add(newCir)
                         currentTool.value = -1
                     }
                     if ( currentTool.value == 3 ) {
                         val newTri = Triangle(x = tapOffset.x, y = tapOffset.y, color = inUsedColor.value, size = brushSize.value)
-                        insendingShapes.add(newTri)
+                    //    insendingShapes.add(newTri)
                         currentTool.value = -1
                     }
                     if (currentTool.value == 4){
@@ -109,10 +109,10 @@ fun WhiteBoard() {
 
                     CoroutineScope(Dispatchers.IO).launch {
                         client.webSocket(method = HttpMethod.Get, host = "127.0.0.1", port = 8080, path = "/rect") {
-                            val shapesList = insendingShapes.toList()
+                            val shapesList = insendingRect.toList()
                             val shapesJson = Json.encodeToString(shapesList)
                             send(Frame.Text(shapesJson))
-                            insendingShapes.clear()
+                            insendingRect.clear()
                         }
                     }
                     CoroutineScope(Dispatchers.IO).launch {
@@ -122,8 +122,8 @@ fun WhiteBoard() {
                                 val shapeJson = frame.readText()
 
                                 // Deserialize the JSON string into a list of Sketch objects
-                                val responseShape: MutableList<Shape> = Json.decodeFromString(shapeJson)
-                                shapeList.addAll(responseShape)
+                                val responseShape: MutableList<Rectangle> = Json.decodeFromString(shapeJson)
+                                rectList.addAll(responseShape)
                             }
                         }
                     }
@@ -196,6 +196,7 @@ fun WhiteBoard() {
             }
         }
         shapeList.forEach { shape -> shape.draw() }
+        rectList.forEach { r -> r.draw() }
         textList.forEach { text -> text.draw() }
     }
 }
