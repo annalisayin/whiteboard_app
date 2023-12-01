@@ -1,5 +1,6 @@
 package data
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.*
@@ -12,6 +13,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.Red
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
@@ -41,27 +43,25 @@ fun SimpleFilledTextField(curtext: String, offsetX: Int, offsetY: Int, color: In
     val mutableOffsetX = remember {mutableStateOf(offsetX)}
     val mutableOffsetY = remember {mutableStateOf(offsetY)}
     Box(
-        modifier = Modifier.offset(offsetX.dp, offsetY.dp)
-    )
-//    Box(
-//        modifier = Modifier
-//            .offset(mutableOffsetX.value.dp, mutableOffsetY.value.dp)
-//            .pointerInput(Unit) {
-//                detectDragGestures { change, dragAmount ->
-//                    change.consume()
-//                    mutableOffsetX.value += dragAmount.x.toInt() / 2
-//                    mutableOffsetY.value += dragAmount.y.toInt() / 2
-//                }
-//            }
-//            .padding(10.dp)
-//    ) {
-//        BasicTextField(
-//            modifier = Modifier
-//                .width(IntrinsicSize.Min),
-//            value = text,
-//            onValueChange = { text = it },
-//            textStyle = TextStyle(color = Color(color), fontSize = (size*5).sp)
-//        )
-//    }
+        modifier = Modifier
+            .offset(mutableOffsetX.value.dp, mutableOffsetY.value.dp)
+            .pointerInput(Unit) {
+                detectDragGestures { change, dragAmount ->
+                    change.consume()
+                    mutableOffsetX.value += dragAmount.x.toInt() / 2
+                    mutableOffsetY.value += dragAmount.y.toInt() / 2
+                }
+            }
+            .padding(10.dp)
+            .background(Color(color))
+    ) {
+        BasicTextField(
+            modifier = Modifier
+                .width(IntrinsicSize.Min),
+            value = text,
+            onValueChange = { text = it },
+            textStyle = TextStyle(color = Color.Black, fontSize = (size*5).sp)
+        )
+    }
 
 }

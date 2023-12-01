@@ -5,6 +5,7 @@ import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -70,9 +71,9 @@ fun WhiteBoard() {
     runBlocking {
         try {
             val responseSketches: List<Sketch> = Json.decodeFromString(client.get("http://localhost:8080/sketches-list").body())
-//            val responseTextboxes: List<TextBox> = Json.decodeFromString(client.get("http://localhost:8080/textbox-list").body())
+            val responseTextboxes: List<TextBox> = Json.decodeFromString(client.get("http://localhost:8080/textbox-list").body())
             responseSketches.forEach { sketch: Sketch -> sketches.add(sketch) }
-//            responseTextboxes.forEach {textbox: TextBox -> textList.add(textbox)}
+            responseTextboxes.forEach {textbox: TextBox -> textList.add(textbox)}
             CoroutineScope(Dispatchers.IO).launch {
                 client.webSocket(
                     method = HttpMethod.Get,
@@ -116,11 +117,12 @@ fun WhiteBoard() {
                         insendingTextboxes.add(newText)
                         currentTool.value = -1
                         CoroutineScope(Dispatchers.IO).launch {
-                            val socket: DefaultClientWebSocketSession = client.webSocketSession(
-                                method = HttpMethod.Get,
-                                host = "127.0.0.1",
-                                port = 8080,
-                                path = "/receive-textbox"
+                            val socket: DefaultClientWebSocketSession =
+                                client.webSocketSession(
+                                    method = HttpMethod.Get,
+                                    host = "127.0.0.1",
+                                    port = 8080,
+                                    path = "/receive-textbox"
                             )
                             val tbList = insendingTextboxes.toList()
                             val tbJson = Json.encodeToString(tbList)
@@ -130,14 +132,14 @@ fun WhiteBoard() {
 
 
                     }
-                    focusManager.clearFocus()
+//                    focusManager.clearFocus()
 
                 }
             )
         }, //contentAlignment = Alignment.TopStart
 
     ) {
-        // "fake" canvas just used for pen tool
+//        // "fake" canvas just used for pen tool
         Canvas(modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
@@ -199,7 +201,6 @@ fun WhiteBoard() {
             }
         )
         {
-
             sketches.forEach { sketch ->
                 val colorInt = (sketch.color * 0xFFFFFF / 100) or 0xFF000000.toInt()
                 drawLine(
@@ -226,9 +227,9 @@ fun WhiteBoard() {
 
             }
         }
+
         shapeList.forEach { shape -> shape.draw() }
         textList.forEach { text ->
-            println(text.curtext)
             SimpleFilledTextField(text.curtext, text.offsetX, text.offsetY, text.color, text.size) }
     }
 }

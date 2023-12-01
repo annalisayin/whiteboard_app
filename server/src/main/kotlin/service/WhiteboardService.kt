@@ -46,7 +46,6 @@ fun insertTextbox(tb: TextBox) {
 }
 
 fun findAllTextboxes(): List<ResultRow> {
-    println("\n CALLING findAllTextboxes() \n")
     var textboxes = emptyList<ResultRow>()
     transaction {
         textboxes = TBModel
