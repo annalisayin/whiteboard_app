@@ -31,9 +31,29 @@ fun insertSketch(sketch: Sketch) {
 }
 
 fun insertTextbox(tb: TextBox) {
-    val id = TBModel.insertAndGetId {
+    println("\n CALLING insertTextbox() \n")
 
+    transaction {
+        val id = TBModel.insertAndGetId {
+            it[offsetX] = tb.offsetX
+            it[offsetY] = tb.offsetY
+            it[curtext] = tb.curtext
+            it[color] = tb.color
+            it[size] = tb.size
+        }
+        println("\n id: " + id + "\n")
     }
+}
+
+fun findAllTextboxes(): List<ResultRow> {
+    println("\n CALLING findAllTextboxes() \n")
+    var textboxes = emptyList<ResultRow>()
+    transaction {
+        textboxes = TBModel
+            .selectAll()
+            .toList()
+    }
+    return textboxes
 }
 
 fun insertUser(user: User) {

@@ -23,14 +23,12 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.websocket.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import toolbar.ToolSelection
 
+var socket: WebSocketSession? = null
 
 @Composable
 fun WhiteBoard() {
@@ -41,24 +39,20 @@ fun WhiteBoard() {
                 isLenient = true
             })
         }
-        install(WebSockets)
+        install(WebSockets) {
+            pingInterval = 20_000
+        }
     }
     val sketches = remember { mutableStateListOf<Sketch>() }
-    runBlocking {
-        try {
-            val responseSketches: List<Sketch> = Json.decodeFromString(client.get("http://localhost:8080/sketches-list").body())
-            responseSketches.forEach { sketch: Sketch -> sketches.add(sketch) }
-        }
-        catch (e: Exception) {
-            println(e)
-        }
-    }
+    val textList = remember { mutableStateListOf<TextBox>()}
+
+
 
     val insendingSketches: MutableList<Sketch> = mutableListOf()
+    val insendingTextboxes: MutableList<TextBox> = mutableListOf()
     val inUsedColor = remember { mutableStateOf(0)}
     val brushSize = remember { mutableStateOf(1)}
     val shapeList = remember { mutableStateListOf<Shape>()}
-    val textList = remember { mutableStateListOf<TextBox>()}
     val currentText = remember {mutableStateOf("hello")}
     val deleteObjects = remember { mutableStateOf(false)}
 
@@ -73,6 +67,27 @@ fun WhiteBoard() {
         3 = triangle
         4 = text */
 
+    runBlocking {
+        try {
+            val responseSketches: List<Sketch> = Json.decodeFromString(client.get("http://localhost:8080/sketches-list").body())
+//            val responseTextboxes: List<TextBox> = Json.decodeFromString(client.get("http://localhost:8080/textbox-list").body())
+            responseSketches.forEach { sketch: Sketch -> sketches.add(sketch) }
+//            responseTextboxes.forEach {textbox: TextBox -> textList.add(textbox)}
+            CoroutineScope(Dispatchers.IO).launch {
+                client.webSocket(
+                    method = HttpMethod.Get,
+                    host = "127.0.0.1",
+                    port = 8080,
+                    path = "/sketch"
+                ) {}
+                client.webSocket(method = HttpMethod.Get, host = "127.0.0.1", port = 8080, path = "/receive-textbox") {}
+            }
+
+        }
+        catch (e: Exception) {
+            println(e)
+        }
+    }
     ToolSelection(currentTool, inUsedColor, brushSize, currentText)
 
     Box(modifier = Modifier
@@ -97,12 +112,26 @@ fun WhiteBoard() {
                         currentTool.value = -1
                     }
                     if (currentTool.value == 4){
-                        println(currentText.value)
                         val newText = TextBox(offsetX = tapOffset.x.toInt(), offsetY = tapOffset.y.toInt(), currentText.value, color = inUsedColor.value, size = brushSize.value)
-                        textList.add(newText)
+                        insendingTextboxes.add(newText)
                         currentTool.value = -1
+                        CoroutineScope(Dispatchers.IO).launch {
+                            val socket: DefaultClientWebSocketSession = client.webSocketSession(
+                                method = HttpMethod.Get,
+                                host = "127.0.0.1",
+                                port = 8080,
+                                path = "/receive-textbox"
+                            )
+                            val tbList = insendingTextboxes.toList()
+                            val tbJson = Json.encodeToString(tbList)
+                            socket.send(Frame.Text(tbJson))
+                            insendingTextboxes.clear()
+                        }
+
+
                     }
                     focusManager.clearFocus()
+
                 }
             )
         }, //contentAlignment = Alignment.TopStart
@@ -131,26 +160,38 @@ fun WhiteBoard() {
                     }
                 },
                 onDragEnd = {
+                    if (currentTool.value == 0) {
 
-                    CoroutineScope(Dispatchers.IO).launch {
-                        client.webSocket(method = HttpMethod.Get, host = "127.0.0.1", port = 8080, path = "/sketch") {
+                        CoroutineScope(Dispatchers.IO).launch {
+                            val socket: DefaultClientWebSocketSession = client.webSocketSession(
+                                method = HttpMethod.Get,
+                                host = "127.0.0.1",
+                                port = 8080,
+                                path = "/sketch"
+                            )
                             val sketchesList = insendingSketches.toList()
                             val sketchesJson = Json.encodeToString(sketchesList)
-                            send(Frame.Text(sketchesJson))
+                            socket.send(Frame.Text(sketchesJson))
                             insendingSketches.clear()
                         }
-                    }
-                    CoroutineScope(Dispatchers.IO).launch {
-                        client.webSocket(method = HttpMethod.Get, host = "127.0.0.1", port = 8080, path = "/sketches") {
-                            for (frame in incoming) {
-                                frame as? Frame.Text ?: continue
-                                val sketchJson = frame.readText()
+                        CoroutineScope(Dispatchers.IO).launch {
+                            client.webSocket(
+                                method = HttpMethod.Get,
+                                host = "127.0.0.1",
+                                port = 8080,
+                                path = "/sketches"
+                            ) {
+                                for (frame in incoming) {
+                                    frame as? Frame.Text ?: continue
+                                    val sketchJson = frame.readText()
 
-                                // Deserialize the JSON string into a list of Sketch objects
-                                val responseSketch: MutableList<Sketch> = Json.decodeFromString(sketchJson)
-                                sketches.addAll(responseSketch)
+                                    // Deserialize the JSON string into a list of Sketch objects
+                                    val responseSketch: MutableList<Sketch> = Json.decodeFromString(sketchJson)
+                                    sketches.addAll(responseSketch)
+                                }
                             }
                         }
+//                    }
                     }
                 }
                 )
@@ -158,6 +199,7 @@ fun WhiteBoard() {
             }
         )
         {
+
             sketches.forEach { sketch ->
                 val colorInt = (sketch.color * 0xFFFFFF / 100) or 0xFF000000.toInt()
                 drawLine(
@@ -169,7 +211,24 @@ fun WhiteBoard() {
                 )
             }
         }
+        LaunchedEffect(Unit){
+            while(true) {
+                delay(1000)
+                client.webSocket(method = HttpMethod.Get, host = "127.0.0.1", port = 8080, path = "/send-textbox") {
+                    for (frame in incoming) {
+                        frame as? Frame.Text ?: continue
+                        val tbJson = frame.readText()
+                        val responseTb: MutableList<TextBox> = Json.decodeFromString(tbJson)
+                        textList.addAll(responseTb)
+                        close()
+                    }
+                }
+
+            }
+        }
         shapeList.forEach { shape -> shape.draw() }
-        textList.forEach { text -> text.draw() }
+        textList.forEach { text ->
+            println(text.curtext)
+            SimpleFilledTextField(text.curtext, text.offsetX, text.offsetY, text.color, text.size) }
     }
 }
