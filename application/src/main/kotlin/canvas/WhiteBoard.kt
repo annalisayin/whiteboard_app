@@ -5,8 +5,10 @@ import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.offset
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -16,15 +18,15 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import data.*
 import io.ktor.client.*
-import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.plugins.websocket.*
-import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.websocket.*
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import toolbar.ToolSelection
@@ -32,7 +34,7 @@ import toolbar.ToolSelection
 var socket: WebSocketSession? = null
 
 @Composable
-fun WhiteBoard() {
+fun WhiteBoard(initialSketches: List<Sketch>, initialTextboxes: List<TextBox>) {
     val client = HttpClient(CIO) {
         install(ContentNegotiation) {
             json(Json {
@@ -40,13 +42,13 @@ fun WhiteBoard() {
                 isLenient = true
             })
         }
-        install(WebSockets) {
-            pingInterval = 20_000
-        }
+        install(WebSockets)
     }
+
     val sketches = remember { mutableStateListOf<Sketch>() }
     val textList = remember { mutableStateListOf<TextBox>()}
-
+    sketches.addAll(initialSketches)
+    textList.addAll(initialTextboxes)
 
 
     val insendingSketches: MutableList<Sketch> = mutableListOf()
@@ -60,45 +62,6 @@ fun WhiteBoard() {
     val focusManager = LocalFocusManager.current
 
     val currentTool = remember {mutableStateOf(-1)}
-    //val recentObject = remember { mutableStateListOf<Number>()}
-    /* -1 = default (none)
-        0 = pen
-        1 = rectangle
-        2 = circle
-        3 = triangle
-        4 = text */
-
-    runBlocking {
-        try {
-            val responseSketches: List<Sketch> = Json.decodeFromString(client.get("http://localhost:8080/sketches-list").body())
-            val responseTextboxes: List<TextBox> = Json.decodeFromString(client.get("http://localhost:8080/textbox-list").body())
-            responseSketches.forEach { sketch: Sketch -> sketches.add(sketch) }
-            responseTextboxes.forEach {textbox: TextBox -> textList.add(textbox)}
-        }
-        catch (e: Exception) {
-            println(e)
-        }
-    }
-    CoroutineScope(Dispatchers.IO).launch {
-        client.webSocket(
-            method = HttpMethod.Get,
-            host = "127.0.0.1",
-            port = 8080,
-            path = "/sketch"
-        ) {}
-    }
-    CoroutineScope(Dispatchers.IO).launch {
-        client.webSocket(method = HttpMethod.Get, host = "127.0.0.1", port = 8080, path = "/send-textbox") {
-            for (frame in incoming) {
-                frame as? Frame.Text ?: continue
-                val tbJson = frame.readText()
-                val responseTb: MutableList<TextBox> = Json.decodeFromString(tbJson)
-                println(responseTb[0].curtext)
-                delay(1000)
-                textList.addAll(responseTb)
-            }
-        }
-    }
 
     ToolSelection(currentTool, inUsedColor, brushSize, currentText)
 
@@ -106,44 +69,73 @@ fun WhiteBoard() {
         .background(Color.Blue)
         .fillMaxSize()
         .pointerInput(Unit) {
-            detectTapGestures(
-                onTap = { tapOffset ->
-                    if ( currentTool.value == 1) {
-                         val newRec = Rectangle(offset = tapOffset, color = Color(inUsedColor.value), size = brushSize.value.dp)
-                         shapeList.add(newRec)
-                        currentTool.value = -1
-                    }
-                    if ( currentTool.value == 2) {
-                        val newCir = Circle(offset = tapOffset, color = Color(inUsedColor.value), size = brushSize.value.dp)
-                        shapeList.add(newCir)
-                        currentTool.value = -1
-                    }
-                    if ( currentTool.value == 3 ) {
-                        val newTri = Triangle(offset = tapOffset, color = Color(inUsedColor.value), size = brushSize.value.dp)
-                        shapeList.add(newTri)
-                        currentTool.value = -1
-                        CoroutineScope(Dispatchers.IO).launch {
-                            println("deleting")
-                            client.get("http://localhost:8080/textbox-list")
-                        }
-                    }
-                    if (currentTool.value == 4){
-                        val newText = TextBox(offsetX = tapOffset.x.toInt(), offsetY = tapOffset.y.toInt(), currentText.value, color = inUsedColor.value, size = brushSize.value)
-                        insendingTextboxes.add(newText)
-                        currentTool.value = -1
-                        CoroutineScope(Dispatchers.IO).launch {
-                            val tbJson = Json.encodeToString(newText)
-                            println("posting textbox " + newText.curtext)
-                            client.post("http://localhost:8080/post-textbox"){
-                                setBody(tbJson)
-                            }
-                        }
-
-                    }
-//                    focusManager.clearFocus()
+            detectTapGestures { tapOffset ->
+                if (currentTool.value == 1) {
+                    val newRec =
+                        Rectangle(offset = tapOffset, color = Color(inUsedColor.value), size = brushSize.value.dp)
+                    shapeList.add(newRec)
+                    currentTool.value = -1
+                }
+                if (currentTool.value == 2) {
+                    val newCir = Circle(offset = tapOffset, color = Color(inUsedColor.value), size = brushSize.value.dp)
+                    shapeList.add(newCir)
+                    currentTool.value = -1
+                }
+                if (currentTool.value == 3) {
+                    val newTri =
+                        Triangle(offset = tapOffset, color = Color(inUsedColor.value), size = brushSize.value.dp)
+                    shapeList.add(newTri)
+                    currentTool.value = -1
+                }
+                if (currentTool.value == 4) {
+                    val newText = TextBox(
+                        offsetX = tapOffset.x.toInt(),
+                        offsetY = tapOffset.y.toInt(),
+                        currentText.value,
+                        color = inUsedColor.value,
+                        size = brushSize.value
+                    )
+                    println("NewText is: ${newText}")
+                    textList.add(newText)
+                    currentTool.value = -1
+//                    CoroutineScope(Dispatchers.IO).launch {
+//                        println("Websocket /receive-textbox")
+//                        val socket: DefaultClientWebSocketSession = client.webSocketSession(
+//                            method = HttpMethod.Get,
+//                            host = "127.0.0.1",
+//                            port = 8080,
+//                            path = "/receive-textbox"
+//                        )
+//                        println("TextBox to be sent:$newText")
+//                        val tbJson = Json.encodeToString(newText)
+//                        socket.send(Frame.Text(tbJson))
+//                    }
+//
+//                    CoroutineScope(Dispatchers.IO).launch {
+//                        println("Websocket /send-textbox")
+//                        client.webSocket(
+//                            method = HttpMethod.Get,
+//                            host = "127.0.0.1",
+//                            port = 8080,
+//                            path = "/send-textbox"
+//                        ) {
+//                            for (frame in incoming) {
+//                                frame as? Frame.Text ?: continue
+//                                val tbJson = frame.readText()
+//                                println("Receiving tbJson is: $tbJson")
+//                                // Deserialize the JSON string into a list of Sketch objects
+//                                val receivedTB: TextBox = Json.decodeFromString(tbJson)
+//                                println("Received textbox is: ${receivedTB}")
+//                                textList.add(receivedTB)
+//                            }
+//                        }
+//                    }
 
                 }
-            )
+
+//                    focusManager.clearFocus()
+
+            }
         }, //contentAlignment = Alignment.TopStart
 
     ) {
@@ -223,10 +215,8 @@ fun WhiteBoard() {
 //        shapeList.forEach { shape -> shape.draw() }
 
         textList.forEach { text ->
-            println(text.curtext)
-            text.draw() }
+            text.draw()
+        }
 
-
-//        textList[textList.size-1].draw()
     }
 }

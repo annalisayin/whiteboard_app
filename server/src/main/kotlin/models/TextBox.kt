@@ -8,5 +8,6 @@ data class TextBox(
     val offsetY: Int,
     val curtext: String,
     val color: Int,
-    val size: Int
+    val size: Int,
+    val Id: Int? = -1,
 )

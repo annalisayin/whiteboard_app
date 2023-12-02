@@ -7,11 +7,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.websocket.*
 import io.ktor.websocket.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import models.*
@@ -38,13 +34,12 @@ fun Application.configureWhiteboard() {
         }
 
         webSocket("/sketches") {
-            while (incomingSketches.isNotEmpty()) {
-                println("/SKETCHES-LIST ENDPOINT CALLED")
-//                if (incomingSketches.isNotEmpty()) {
+            while (true) {
+                if (incomingSketches.isNotEmpty()) {
                     val sketchJson = Json.encodeToString(incomingSketches)
                     send(Frame.Text(sketchJson))
                     incomingSketches.clear()
-//                }
+                }
                 delay(10) // Introduce a delay between iterations to allow other coroutines to run
             }
         }
@@ -58,21 +53,23 @@ fun Application.configureWhiteboard() {
         webSocket("/receive-textbox") {
             for (frame in incoming) {
                 frame as? Frame.Text ?: continue
+                println("receive-textbox has incoming data!")
                 val receivedText = frame.readText()
-                val textboxes = Json.decodeFromString<List<TextBox>>(receivedText)
-                for(tb in textboxes) {
-                    insertTextbox(tb)
-                }
-                incomingTextboxes.addAll(textboxes)
+                val textbox = Json.decodeFromString<TextBox>(receivedText)
+                println("received this Textbox:${textbox}")
+                insertTextbox(textbox)
+                incomingTextboxes.add(textbox)
             }
         }
 
         webSocket("/send-textbox"){
             while (true) {
                 if(incomingTextboxes.isNotEmpty()) {
-                    val tbJson = Json.encodeToString(incomingTextboxes)
+                    println("send-textbox is being processed")
+                    val toBeSentTB = incomingTextboxes.removeAt(0)
+                    val tbJson = Json.encodeToString(toBeSentTB)
                     send(Frame.Text(tbJson))
-                    incomingTextboxes.clear()
+                    println("Remaining of incomingTextboxes: ${incomingTextboxes}")
                 }
                 delay(10) // Introduce a delay between iterations to allow other coroutines to run
             }
