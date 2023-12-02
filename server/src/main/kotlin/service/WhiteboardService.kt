@@ -5,6 +5,8 @@ import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.insertAndGetId
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
 
 fun findAllSketches(): List<ResultRow> {
@@ -27,6 +29,42 @@ fun insertSketch(sketch: Sketch) {
             it[color] = sketch.color
             it[width] = sketch.width
         }
+    }
+}
+
+fun insertTextbox(tb: TextBox) {
+    var insertedTextBox = tb
+    transaction {
+        val id = TBModel.insertAndGetId {
+            it[offsetX] = tb.offsetX
+            it[offsetY] = tb.offsetY
+            it[curtext] = tb.curtext
+            it[color] = tb.color
+            it[size] = tb.size
+        }
+        insertedTextBox = tb.copy(Id = id.value)
+    }
+}
+
+fun findAllTextboxes(): List<ResultRow> {
+    var textboxes = emptyList<ResultRow>()
+    transaction {
+        textboxes = TBModel
+            .selectAll()
+            .toList()
+    }
+    return textboxes
+}
+
+fun deleteAll(): Unit {
+    transaction {
+        TBModel.deleteAll()
+    }
+}
+
+fun deleteTextBoxById(id: Int): Unit {
+    transaction {
+        TBModel.deleteWhere { curId eq id }
     }
 }
 
