@@ -1,10 +1,8 @@
 package service
 
 import models.*
-import org.jetbrains.exposed.sql.ResultRow
-import org.jetbrains.exposed.sql.deleteAll
-import org.jetbrains.exposed.sql.insertAndGetId
-import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
 
 fun findAllSketches(): List<ResultRow> {
@@ -57,6 +55,12 @@ fun findAllTextboxes(): List<ResultRow> {
 fun deleteAll(): Unit {
     transaction {
         TBModel.deleteAll()
+    }
+}
+
+fun deleteTextBoxById(id: Int): Unit {
+    transaction {
+        TBModel.deleteWhere { curId eq id }
     }
 }
 

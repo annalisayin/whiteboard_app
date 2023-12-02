@@ -28,6 +28,7 @@ class TextBox(
     val color: Int,
     val size: Int,
     val Id: Int? = -1,
+//    val inDelete: MutableState<Boolean>,
 ){
     @Composable
     fun draw(){

@@ -6,7 +6,6 @@ import androidx.compose.material.Button
 import androidx.compose.material.Icon
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
@@ -15,7 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun Delete_tool(deleteObjects: MutableState<Boolean>,) {
+fun Delete_tool(inDelete: MutableState<Boolean>,) {
     val openDialog = remember { mutableStateOf(false) }
     val buttonTitle = remember {
         mutableStateOf("Show Pop Up")
@@ -25,7 +24,7 @@ fun Delete_tool(deleteObjects: MutableState<Boolean>,) {
             .padding(30.dp),
         onClick = {
             openDialog.value = !openDialog.value
-            deleteObjects.value = !deleteObjects.value
+            inDelete.value = !inDelete.value
         }
     ) {
         Icon(Icons.Filled.Delete, contentDescription = "Localized description")

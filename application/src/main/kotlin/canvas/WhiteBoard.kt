@@ -52,18 +52,17 @@ fun WhiteBoard(initialSketches: List<Sketch>, initialTextboxes: List<TextBox>) {
 
 
     val insendingSketches: MutableList<Sketch> = mutableListOf()
-    val insendingTextboxes: MutableList<TextBox> = mutableListOf()
     val inUsedColor = remember { mutableStateOf(0)}
     val brushSize = remember { mutableStateOf(1)}
     val shapeList = remember { mutableStateListOf<Shape>()}
     val currentText = remember {mutableStateOf("hello")}
-    val deleteObjects = remember { mutableStateOf(false)}
+    val inDelete = remember { mutableStateOf(false)}
 
     val focusManager = LocalFocusManager.current
 
     val currentTool = remember {mutableStateOf(-1)}
 
-    ToolSelection(currentTool, inUsedColor, brushSize, currentText)
+    ToolSelection(currentTool, inUsedColor, brushSize, currentText, inDelete)
 
     Box(modifier = Modifier
         .background(Color.Blue)
@@ -93,43 +92,43 @@ fun WhiteBoard(initialSketches: List<Sketch>, initialTextboxes: List<TextBox>) {
                         offsetY = tapOffset.y.toInt(),
                         currentText.value,
                         color = inUsedColor.value,
-                        size = brushSize.value
+                        size = brushSize.value,
+                        Id = null,
                     )
                     println("NewText is: ${newText}")
-                    textList.add(newText)
                     currentTool.value = -1
-//                    CoroutineScope(Dispatchers.IO).launch {
-//                        println("Websocket /receive-textbox")
-//                        val socket: DefaultClientWebSocketSession = client.webSocketSession(
-//                            method = HttpMethod.Get,
-//                            host = "127.0.0.1",
-//                            port = 8080,
-//                            path = "/receive-textbox"
-//                        )
-//                        println("TextBox to be sent:$newText")
-//                        val tbJson = Json.encodeToString(newText)
-//                        socket.send(Frame.Text(tbJson))
-//                    }
-//
-//                    CoroutineScope(Dispatchers.IO).launch {
-//                        println("Websocket /send-textbox")
-//                        client.webSocket(
-//                            method = HttpMethod.Get,
-//                            host = "127.0.0.1",
-//                            port = 8080,
-//                            path = "/send-textbox"
-//                        ) {
-//                            for (frame in incoming) {
-//                                frame as? Frame.Text ?: continue
-//                                val tbJson = frame.readText()
-//                                println("Receiving tbJson is: $tbJson")
-//                                // Deserialize the JSON string into a list of Sketch objects
-//                                val receivedTB: TextBox = Json.decodeFromString(tbJson)
-//                                println("Received textbox is: ${receivedTB}")
-//                                textList.add(receivedTB)
-//                            }
-//                        }
-//                    }
+                    CoroutineScope(Dispatchers.IO).launch {
+                        println("Websocket /receive-textbox")
+                        val socket: DefaultClientWebSocketSession = client.webSocketSession(
+                            method = HttpMethod.Get,
+                            host = "127.0.0.1",
+                            port = 8080,
+                            path = "/receive-textbox"
+                        )
+                        println("TextBox to be sent:$newText")
+                        val tbJson = Json.encodeToString(newText)
+                        socket.send(Frame.Text(tbJson))
+                    }
+
+                    CoroutineScope(Dispatchers.IO).launch {
+                        println("Websocket /send-textbox")
+                        client.webSocket(
+                            method = HttpMethod.Get,
+                            host = "127.0.0.1",
+                            port = 8080,
+                            path = "/send-textbox"
+                        ) {
+                            for (frame in incoming) {
+                                frame as? Frame.Text ?: continue
+                                val tbJson = frame.readText()
+                                println("Receiving tbJson is: $tbJson")
+                                // Deserialize the JSON string into a list of Sketch objects
+                                val receivedTB: TextBox = Json.decodeFromString(tbJson)
+                                println("Received textbox is: ${receivedTB}")
+                                textList.add(receivedTB)
+                            }
+                        }
+                    }
 
                 }
 
