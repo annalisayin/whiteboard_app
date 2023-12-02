@@ -16,7 +16,9 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
-import data.*
+import data.Rectangle
+import data.Shape
+import data.TextBox
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.contentnegotiation.*
@@ -49,15 +51,15 @@ fun WhiteBoard(initialSketches: List<Sketch>, initialTextboxes: List<TextBox>) {
     val shapeList = remember { mutableStateListOf<Shape>()}
     val rectList = remember { mutableStateListOf<Rectangle>()}
 
-    runBlocking {
-        try {
-            val responseRects: List<Rectangle> = Json.decodeFromString(client.get("http://localhost:8080/rects-list").body())
-            responseRects.forEach { r: Rectangle -> rectList.add(r) }
-        }
-        catch (e: Exception) {
-            println(e)
-        }
-    }
+//    runBlocking {
+//        try {
+//            val responseRects: List<Rectangle> = Json.decodeFromString(client.get("http://localhost:8080/rects-list").body())
+//            responseRects.forEach { r: Rectangle -> rectList.add(r) }
+//        }
+//        catch (e: Exception) {
+//            println(e)
+//        }
+//    }
     val textList = remember { mutableStateListOf<TextBox>()}
     sketches.addAll(initialSketches)
     textList.addAll(initialTextboxes)
@@ -83,7 +85,7 @@ fun WhiteBoard(initialSketches: List<Sketch>, initialTextboxes: List<TextBox>) {
             detectTapGestures { tapOffset ->
                 if (currentTool.value == 1) {
                     val newRec =
-                        Rectangle(offset = tapOffset, color = Color(inUsedColor.value), size = brushSize.value.dp)
+                        Rectangle(x = tapOffset.x, y = tapOffset.y, color = inUsedColor.value, size = brushSize.value)
                     shapeList.add(newRec)
                     currentTool.value = -1
                     CoroutineScope(Dispatchers.IO).launch {
@@ -107,17 +109,17 @@ fun WhiteBoard(initialSketches: List<Sketch>, initialTextboxes: List<TextBox>) {
                         }
                     }
                 }
-                if (currentTool.value == 2) {
-                    val newCir = Circle(offset = tapOffset, color = Color(inUsedColor.value), size = brushSize.value.dp)
-                    shapeList.add(newCir)
-                    currentTool.value = -1
-                }
-                if (currentTool.value == 3) {
-                    val newTri =
-                        Triangle(offset = tapOffset, color = Color(inUsedColor.value), size = brushSize.value.dp)
-                    shapeList.add(newTri)
-                    currentTool.value = -1
-                }
+//                if (currentTool.value == 2) {
+//                    val newCir = Circle(offset = tapOffset, color = Color(inUsedColor.value), size = brushSize.value.dp)
+//                    shapeList.add(newCir)
+//                    currentTool.value = -1
+//                }
+//                if (currentTool.value == 3) {
+//                    val newTri =
+//                        Triangle(offset = tapOffset, color = Color(inUsedColor.value), size = brushSize.value.dp)
+//                    shapeList.add(newTri)
+//                    currentTool.value = -1
+//                }
                 if (currentTool.value == 4) {
                     val newText = TextBox(
                         offsetX = tapOffset.x.toInt(),

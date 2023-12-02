@@ -1,10 +1,6 @@
 package service
 
 import models.*
-import org.jetbrains.exposed.sql.ResultRow
-import org.jetbrains.exposed.sql.insertAndGetId
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -41,6 +37,7 @@ fun insertTextbox(tb: TextBox) {
             it[curtext] = tb.curtext
             it[color] = tb.color
             it[size] = tb.size
+            it[curId] = -1
         }
         insertedTextBox = tb.copy(Id = id.value)
     }
