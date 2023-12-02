@@ -8,7 +8,7 @@ object TBModel : IntIdTable() {
     val curtext = text("curtext")
     val color = integer("color")
     val size = integer("size")
-    val curId = integer("Id")
+    val curId = integer("curId")
 }
 
 fun ResultRow.toTextBox(): TextBox {
