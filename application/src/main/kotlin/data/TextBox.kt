@@ -29,13 +29,18 @@ import kotlinx.serialization.Serializable
 //    }
 //}
 @Serializable
-data class TextBox(
+class TextBox(
     val offsetX: Int,
     val offsetY: Int,
     val curtext: String,
     val color: Int,
     val size: Int
-)
+){
+    @Composable
+    fun draw(){
+        SimpleFilledTextField(curtext, offsetX, offsetY, color, size)
+    }
+}
 
 @Composable
 fun SimpleFilledTextField(curtext: String, offsetX: Int, offsetY: Int, color: Int, size: Int) {

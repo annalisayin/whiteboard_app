@@ -1,10 +1,7 @@
 package service
 
 import models.*
-import org.jetbrains.exposed.sql.ResultRow
-import org.jetbrains.exposed.sql.insertAndGetId
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 
 fun findAllSketches(): List<ResultRow> {
@@ -31,8 +28,6 @@ fun insertSketch(sketch: Sketch) {
 }
 
 fun insertTextbox(tb: TextBox) {
-    println("\n CALLING insertTextbox() \n")
-
     transaction {
         val id = TBModel.insertAndGetId {
             it[offsetX] = tb.offsetX
@@ -53,6 +48,12 @@ fun findAllTextboxes(): List<ResultRow> {
             .toList()
     }
     return textboxes
+}
+
+fun deleteAll(): Unit {
+    transaction {
+        TBModel.deleteAll()
+    }
 }
 
 fun insertUser(user: User) {

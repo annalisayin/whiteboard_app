@@ -50,8 +50,6 @@ fun Application.configureWhiteboard() {
         }
 
         get("/sketches-list") {
-            println("/SKETCHES-LIST ENDPOINT CALLED")
-            delay(1000L)
             val sketches = findAllSketches().map { row -> row.toSketch() }
             val json = Json.encodeToString(sketches)
             call.respondText(json, contentType = ContentType.Application.Json)
@@ -63,7 +61,6 @@ fun Application.configureWhiteboard() {
                 val receivedText = frame.readText()
                 val textboxes = Json.decodeFromString<List<TextBox>>(receivedText)
                 for(tb in textboxes) {
-                    println(tb)
                     insertTextbox(tb)
                 }
                 incomingTextboxes.addAll(textboxes)
@@ -71,23 +68,31 @@ fun Application.configureWhiteboard() {
         }
 
         webSocket("/send-textbox"){
-            println("/send-textbox ENDPOINT CALLED")
-            delay(1000L)
-            while (incomingTextboxes.isNotEmpty()) {
-                    //println(incomingTextboxes)
+            while (true) {
+                if(incomingTextboxes.isNotEmpty()) {
                     val tbJson = Json.encodeToString(incomingTextboxes)
-                    println("sending textboxes: " + tbJson)
                     send(Frame.Text(tbJson))
                     incomingTextboxes.clear()
-
-                delay(1000L) // Introduce a delay between iterations to allow other coroutines to run
+                }
+                delay(10) // Introduce a delay between iterations to allow other coroutines to run
             }
+        }
+
+        post("/post-textbox") {
+            val text = call.receiveText()
+            val tb = Json.decodeFromString<TextBox>(text)
+            insertTextbox(tb)
+            incomingTextboxes.add(tb)
         }
 
         get("/textbox-list") {
             val tbs = findAllTextboxes().map { row -> row.toTextBox() }
             val json = Json.encodeToString(tbs)
             call.respondText(json, contentType = ContentType.Application.Json)
+        }
+
+        get("/delete-textboxes") {
+            deleteAll()
         }
 
         webSocket("/user") {
@@ -113,7 +118,6 @@ fun Application.configureWhiteboard() {
                 delay(10) // Introduce a delay between iterations to allow other coroutines to run
             }
         }
-
 
         get("/connected-users") {
             val users = findAllUsers().map { row -> row.toUser() }

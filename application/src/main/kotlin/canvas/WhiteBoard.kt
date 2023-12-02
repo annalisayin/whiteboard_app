@@ -74,21 +74,32 @@ fun WhiteBoard() {
             val responseTextboxes: List<TextBox> = Json.decodeFromString(client.get("http://localhost:8080/textbox-list").body())
             responseSketches.forEach { sketch: Sketch -> sketches.add(sketch) }
             responseTextboxes.forEach {textbox: TextBox -> textList.add(textbox)}
-            CoroutineScope(Dispatchers.IO).launch {
-                client.webSocket(
-                    method = HttpMethod.Get,
-                    host = "127.0.0.1",
-                    port = 8080,
-                    path = "/sketch"
-                ) {}
-                client.webSocket(method = HttpMethod.Get, host = "127.0.0.1", port = 8080, path = "/receive-textbox") {}
-            }
-
         }
         catch (e: Exception) {
             println(e)
         }
     }
+    CoroutineScope(Dispatchers.IO).launch {
+        client.webSocket(
+            method = HttpMethod.Get,
+            host = "127.0.0.1",
+            port = 8080,
+            path = "/sketch"
+        ) {}
+    }
+    CoroutineScope(Dispatchers.IO).launch {
+        client.webSocket(method = HttpMethod.Get, host = "127.0.0.1", port = 8080, path = "/send-textbox") {
+            for (frame in incoming) {
+                frame as? Frame.Text ?: continue
+                val tbJson = frame.readText()
+                val responseTb: MutableList<TextBox> = Json.decodeFromString(tbJson)
+                println(responseTb[0].curtext)
+                delay(1000)
+                textList.addAll(responseTb)
+            }
+        }
+    }
+
     ToolSelection(currentTool, inUsedColor, brushSize, currentText)
 
     Box(modifier = Modifier
@@ -111,25 +122,22 @@ fun WhiteBoard() {
                         val newTri = Triangle(offset = tapOffset, color = Color(inUsedColor.value), size = brushSize.value.dp)
                         shapeList.add(newTri)
                         currentTool.value = -1
+                        CoroutineScope(Dispatchers.IO).launch {
+                            println("deleting")
+                            client.get("http://localhost:8080/textbox-list")
+                        }
                     }
                     if (currentTool.value == 4){
                         val newText = TextBox(offsetX = tapOffset.x.toInt(), offsetY = tapOffset.y.toInt(), currentText.value, color = inUsedColor.value, size = brushSize.value)
                         insendingTextboxes.add(newText)
                         currentTool.value = -1
                         CoroutineScope(Dispatchers.IO).launch {
-                            val socket: DefaultClientWebSocketSession =
-                                client.webSocketSession(
-                                    method = HttpMethod.Get,
-                                    host = "127.0.0.1",
-                                    port = 8080,
-                                    path = "/receive-textbox"
-                            )
-                            val tbList = insendingTextboxes.toList()
-                            val tbJson = Json.encodeToString(tbList)
-                            socket.send(Frame.Text(tbJson))
-                            insendingTextboxes.clear()
+                            val tbJson = Json.encodeToString(newText)
+                            println("posting textbox " + newText.curtext)
+                            client.post("http://localhost:8080/post-textbox"){
+                                setBody(tbJson)
+                            }
                         }
-
 
                     }
 //                    focusManager.clearFocus()
@@ -212,24 +220,13 @@ fun WhiteBoard() {
                 )
             }
         }
-        LaunchedEffect(Unit){
-            while(true) {
-                delay(1000)
-                client.webSocket(method = HttpMethod.Get, host = "127.0.0.1", port = 8080, path = "/send-textbox") {
-                    for (frame in incoming) {
-                        frame as? Frame.Text ?: continue
-                        val tbJson = frame.readText()
-                        val responseTb: MutableList<TextBox> = Json.decodeFromString(tbJson)
-                        textList.addAll(responseTb)
-                        close()
-                    }
-                }
+//        shapeList.forEach { shape -> shape.draw() }
 
-            }
-        }
-
-        shapeList.forEach { shape -> shape.draw() }
         textList.forEach { text ->
-            SimpleFilledTextField(text.curtext, text.offsetX, text.offsetY, text.color, text.size) }
+            println(text.curtext)
+            text.draw() }
+
+
+//        textList[textList.size-1].draw()
     }
 }
