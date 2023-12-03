@@ -19,6 +19,7 @@ fun Application.configureWhiteboard() {
         val incomingTextboxes: MutableList<TextBox> = mutableListOf()
         val connectedUsers: MutableList<User> = mutableListOf()
         val incomingRects: MutableList<Rectangle> = mutableListOf()
+        val incomingDeletedTBId: MutableList<Int> = mutableListOf()
 
         webSocket("/sketch") {
             for (frame in incoming) {
@@ -57,7 +58,8 @@ fun Application.configureWhiteboard() {
                 val receivedText = frame.readText()
                 val textbox = Json.decodeFromString<TextBox>(receivedText)
                 println("received this Textbox:${textbox}")
-                insertTextbox(textbox)
+                val tbId = insertTextbox(textbox)
+                textbox.Id = tbId
                 incomingTextboxes.add(textbox)
             }
         }
@@ -92,6 +94,27 @@ fun Application.configureWhiteboard() {
                 call.respond(HttpStatusCode.OK, "TextBox with Id $id deleted successfully")
             } else {
                 call.respond(HttpStatusCode.BadRequest, "Invalid Id format")
+            }
+        }
+
+        webSocket("/receive-deleted-texbox-id") {
+            for (frame in incoming) {
+                frame as? Frame.Text ?: continue
+                val receivedText = frame.readText()
+                val deletedTextBoxId = Json.decodeFromString<Int>(receivedText)
+                incomingDeletedTBId.add(deletedTextBoxId)
+            }
+        }
+
+        webSocket("/send-deleted-textbox-id") {
+            while (true) {
+                if (incomingDeletedTBId.isNotEmpty()) {
+                    val toBeSentDeletedTBId = incomingDeletedTBId.removeAt(0)
+                    val dlIdJson = Json.encodeToString(toBeSentDeletedTBId)
+                    send(Frame.Text(dlIdJson))
+                    println("Remaining of incomingDeletedTBId: ${dlIdJson}")
+                }
+                delay(10) // Introduce a delay between iterations to allow other coroutines to run
             }
         }
 

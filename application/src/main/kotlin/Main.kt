@@ -18,6 +18,7 @@ import canvas.Sketch
 import canvas.WhiteBoard
 import data.Rectangle
 import data.TextBox
+import data.TextBoxData
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
@@ -56,6 +57,7 @@ fun main() = application {
     var initialSketches = remember { mutableStateListOf<Sketch>() }
     var initialTextboxes = remember { mutableStateListOf<TextBox>()}
     var initialRects = remember { mutableStateListOf<Rectangle>()}
+    val inDelete = remember { mutableStateOf(false)}
     runBlocking {
         try {
             println("Getting all sketches")
@@ -70,8 +72,8 @@ fun main() = application {
     runBlocking {
         try {
             println("Getting all textboxes")
-            val responseTextboxes: List<TextBox> = Json.decodeFromString(client.get("http://localhost:8080/textbox-list").body())
-            responseTextboxes.forEach {textbox: TextBox -> initialTextboxes.add(textbox)}
+            val responseTextboxes: List<TextBoxData> = Json.decodeFromString(client.get("http://localhost:8080/textbox-list").body())
+            responseTextboxes.forEach {textbox: TextBoxData -> initialTextboxes.add(TextBox(textbox, textbox.Id, inDelete))}
         }
         catch (e: Exception) {
             println(e)
@@ -96,7 +98,7 @@ fun main() = application {
             .background(Color.LightGray),
             horizontalAlignment = Alignment.CenterHorizontally)
         {
-            WhiteBoard(initialSketches, initialTextboxes, initialRects)
+            WhiteBoard(initialSketches, initialTextboxes, initialRects, inDelete)
         }
         //App()
         //Canvas()

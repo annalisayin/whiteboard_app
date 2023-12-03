@@ -17,6 +17,7 @@ fun ResultRow.toTextBox(): TextBox {
         this[TBModel.offsetY],
         this[TBModel.curtext],
         this[TBModel.color],
-        this[TBModel.size]
+        this[TBModel.size],
+        this[TBModel.curId]
     )
 }

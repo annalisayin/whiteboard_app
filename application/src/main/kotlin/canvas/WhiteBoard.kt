@@ -6,6 +6,7 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateList
@@ -18,6 +19,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import data.Rectangle
 import data.TextBox
+import data.TextBoxData
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.contentnegotiation.*
@@ -35,7 +37,7 @@ import toolbar.ToolSelection
 var socket: WebSocketSession? = null
 
 @Composable
-fun WhiteBoard(sketches: SnapshotStateList<Sketch>, textList: SnapshotStateList<TextBox>, rectList: SnapshotStateList<Rectangle>) {
+fun WhiteBoard(sketches: SnapshotStateList<Sketch>, textList: SnapshotStateList<TextBox>, rectList: SnapshotStateList<Rectangle>, inDelete: MutableState<Boolean>) {
     val client = HttpClient(CIO) {
         install(ContentNegotiation) {
             json(Json {
@@ -51,7 +53,6 @@ fun WhiteBoard(sketches: SnapshotStateList<Sketch>, textList: SnapshotStateList<
     val inUsedColor = remember { mutableStateOf(0)}
     val brushSize = remember { mutableStateOf(1)}
     val currentText = remember {mutableStateOf("hello")}
-    val inDelete = remember { mutableStateOf(false)}
 
     val focusManager = LocalFocusManager.current
 
@@ -88,25 +89,24 @@ fun WhiteBoard(sketches: SnapshotStateList<Sketch>, textList: SnapshotStateList<
                         }
                     }
                 }
-//                if (currentTool.value == 2) {
+                if (currentTool.value == 2) {
 //                    val newCir = Circle(offset = tapOffset, color = Color(inUsedColor.value), size = brushSize.value.dp)
 //                    shapeList.add(newCir)
 //                    currentTool.value = -1
-//                }
-//                if (currentTool.value == 3) {
+                }
+                if (currentTool.value == 3) {
 //                    val newTri =
 //                        Triangle(offset = tapOffset, color = Color(inUsedColor.value), size = brushSize.value.dp)
 //                    shapeList.add(newTri)
 //                    currentTool.value = -1
-//                }
+                }
                 if (currentTool.value == 4) {
-                    val newText = TextBox(
+                    val newText = TextBoxData(
                         offsetX = tapOffset.x.toInt(),
                         offsetY = tapOffset.y.toInt(),
                         currentText.value,
                         color = inUsedColor.value,
                         size = brushSize.value,
-                        Id = null,
                     )
                     println("NewText is: ${newText}")
                     currentTool.value = -1
@@ -136,13 +136,17 @@ fun WhiteBoard(sketches: SnapshotStateList<Sketch>, textList: SnapshotStateList<
                                 val tbJson = frame.readText()
                                 println("Receiving tbJson is: $tbJson")
                                 // Deserialize the JSON string into a list of Sketch objects
-                                val receivedTB: TextBox = Json.decodeFromString(tbJson)
+                                val receivedTB: TextBoxData = Json.decodeFromString(tbJson)
                                 println("Received textbox is: ${receivedTB}")
-                                textList.add(receivedTB)
+                                val newTextBox = TextBox(receivedTB, receivedTB.Id, inDelete)
+                                textList.add(newTextBox)
                             }
                         }
                     }
 
+                }
+                if (currentTool.value == 5) {
+                    currentTool.value = -1
                 }
 
 //                    focusManager.clearFocus()
@@ -226,6 +230,25 @@ fun WhiteBoard(sketches: SnapshotStateList<Sketch>, textList: SnapshotStateList<
         }
 //        shapeList.forEach { shape -> shape.draw() }
         rectList.forEach { r -> r.draw() }
+        CoroutineScope(Dispatchers.IO).launch {
+            println("Websocket /send-deleted-textbox-id")
+            client.webSocket(
+                method = HttpMethod.Get,
+                host = "127.0.0.1",
+                port = 8080,
+                path = "/send-deleted-textbox-id"
+            ) {
+                for (frame in incoming) {
+                    frame as? Frame.Text ?: continue
+                    val dlTbJson = frame.readText()
+                    println("Receiving dlTbJson is: $dlTbJson")
+                    // Deserialize the JSON string into a list of Sketch objects
+                    val receivedDLTBID: Int = Json.decodeFromString(dlTbJson)
+                    println("Deleted textbox is: ${receivedDLTBID}")
+                    textList.removeIf { it.Id == receivedDLTBID}
+                }
+            }
+        }
         textList.forEach { text -> text.draw() }
     }
 }

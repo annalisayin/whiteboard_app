@@ -28,8 +28,8 @@ fun insertSketch(sketch: Sketch) {
     }
 }
 
-fun insertTextbox(tb: TextBox) {
-    var insertedTextBox = tb
+fun insertTextbox(tb: TextBox): Int {
+    var tbId = -1
     transaction {
         val id = TBModel.insertAndGetId {
             it[offsetX] = tb.offsetX
@@ -39,8 +39,12 @@ fun insertTextbox(tb: TextBox) {
             it[size] = tb.size
             it[curId] = -1
         }
-        insertedTextBox = tb.copy(Id = id.value)
+        TBModel.update({ TBModel.id eq id.value }) {
+            it[curId] = id.value
+        }
+        tbId = id.value
     }
+    return tbId
 }
 
 fun findAllTextboxes(): List<ResultRow> {
