@@ -45,7 +45,7 @@ fun BrushSizeSelector(brushSize: MutableState<Int>) {
 @Composable
 fun ColorPicker(inUsedColor: MutableState<Int>) {
     var sliderPosition by remember { mutableStateOf(0f) }
-    val colors: List<Color> = (0 until 100).map { index ->
+    val colors: List<Color> = (0 until 101).map { index ->
         val colorInt = (index * 0xFFFFFF / 100) or 0xFF000000.toInt()
         Color(colorInt)
     }
@@ -53,7 +53,7 @@ fun ColorPicker(inUsedColor: MutableState<Int>) {
         modifier = Modifier
             .width(200.dp)
     ) {
-        Text("Pick a color from slider")
+        Text("Pick a color from slider, pull to the end of the slider to start erasing")
         Slider(
             value = sliderPosition,
             onValueChange = {
