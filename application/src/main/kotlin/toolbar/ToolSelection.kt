@@ -44,6 +44,7 @@ fun ToolSelection(
             Shapes_tool(currentTool)
             Brush_tool(inUsedColor, brushSize, currentTool)
             Text_tool(currentText, currentTool)
+            Delete_tool(inDelete, currentTool)
         }
     }
 }
