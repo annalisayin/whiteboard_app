@@ -25,8 +25,14 @@ import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.plugins.websocket.*
 import io.ktor.client.request.*
+import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
+import io.ktor.websocket.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 
@@ -88,6 +94,13 @@ fun main() = application {
         }
         catch (e: Exception) {
             println(e)
+        }
+    }
+
+    CoroutineScope(Dispatchers.IO).launch {
+        client.webSocket(method = HttpMethod.Get, host = "127.0.0.1", port = 8080, path = "/connected-session") {
+            val session = Json.encodeToString(1)
+            send(Frame.Text(session))
         }
     }
 

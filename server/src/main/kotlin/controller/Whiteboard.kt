@@ -22,6 +22,7 @@ fun Application.configureWhiteboard() {
         val incomingDeletedTBId: MutableList<Int> = mutableListOf()
         val incomingUpdatedTBId: MutableList<TextBox> = mutableListOf()
         val incomingClearAllSignal: MutableList<Int> = mutableListOf()
+        val incomingSession: MutableList<Int> = mutableListOf()
 
         webSocket("/sketch") {
             for (frame in incoming) {
@@ -127,6 +128,43 @@ fun Application.configureWhiteboard() {
         delete("/delete-all") {
             deleteAll()
             call.respond(HttpStatusCode.OK, "Whiteboard is cleared successfully")
+        }
+
+        webSocket("/connected-session") {
+            for (frame in incoming) {
+                frame as? Frame.Text ?: continue
+                println("connected-session has incoming data!")
+                val receivedText = frame.readText()
+                val signal = Json.decodeFromString<Int>(receivedText)
+                println("connected-session signal is:${signal}")
+                incomingSession.add(signal)
+            }
+        }
+
+        webSocket("/new-user") {
+            for (frame in incoming) {
+                frame as? Frame.Text ?: continue
+                println("new-user has incoming data!")
+                val receivedText = frame.readText()
+                val user = Json.decodeFromString<User>(receivedText)
+                println("new user is:${user}")
+                connectedUsers.add(user)
+                incomingSession.add(1)
+            }
+        }
+
+        webSocket("/update-user-session"){
+            while (true) {
+                if(incomingSession.isNotEmpty() && incomingSession.size > 0) {
+                    println("/update-user-session is being processed")
+                    incomingSession.removeAt(0)
+                    val usersList = Json.encodeToString(connectedUsers)
+                    println("User List to be sent is: $usersList")
+                    send(Frame.Text(usersList))
+                    println("Remaining of incomingSession: ${incomingSession}")
+                }
+                delay(10) // Introduce a delay between iterations to allow other coroutines to run
+            }
         }
 
         webSocket("/receive-deleted-texbox-id") {
