@@ -102,11 +102,28 @@ fun SimpleFilledTextField(curtext: String, offsetX: Int, offsetY: Int, color: In
                 }
             }
             .pointerInput(Unit) {
-                detectDragGestures { change, dragAmount ->
-                    change.consume()
-                    mutableOffsetX.value += dragAmount.x.toInt() / 2
-                    mutableOffsetY.value += dragAmount.y.toInt() / 2
-                }
+                detectDragGestures (
+                    onDrag = { change, dragAmount ->
+                        change.consume()
+                        mutableOffsetX.value += dragAmount.x.toInt() / 2
+                        mutableOffsetY.value += dragAmount.y.toInt() / 2
+                    },
+                    onDragEnd = {
+                        CoroutineScope(Dispatchers.IO).launch {
+                            println("Websocket /receive-updated-textbox")
+                            var newTBData = TextBoxData(mutableOffsetX.value, mutableOffsetY.value, curtext, color, size, Id)
+                            val socket: DefaultClientWebSocketSession = client.webSocketSession(
+                                method = HttpMethod.Get,
+                                host = "127.0.0.1",
+                                port = 8080,
+                                path = "/receive-updated-textbox"
+                            )
+                            println("TextBox to be updated:$Id")
+                            val TbJson = Json.encodeToString(newTBData)
+                            socket.send(Frame.Text(TbJson))
+                        }
+                    }
+                )
 
             }
             .padding(10.dp)

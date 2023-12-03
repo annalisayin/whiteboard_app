@@ -9,5 +9,5 @@ data class TextBox(
     val curtext: String,
     val color: Int,
     val size: Int,
-    var Id: Int? = -1,
+    var Id: Int = -1,
 )

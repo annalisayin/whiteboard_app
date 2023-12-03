@@ -47,6 +47,15 @@ fun insertTextbox(tb: TextBox): Int {
     return tbId
 }
 
+fun updateTextboxPositionById(id: Int, newOffsetX: Int, newOffsetY: Int) {
+    transaction {
+        TBModel.update({ TBModel.id eq id }) {
+            it[offsetX] = newOffsetX
+            it[offsetY] = newOffsetY
+        }
+    }
+}
+
 fun findAllTextboxes(): List<ResultRow> {
     var textboxes = emptyList<ResultRow>()
     transaction {

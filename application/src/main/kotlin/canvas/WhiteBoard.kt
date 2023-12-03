@@ -249,6 +249,27 @@ fun WhiteBoard(sketches: SnapshotStateList<Sketch>, textList: SnapshotStateList<
                 }
             }
         }
+        CoroutineScope(Dispatchers.IO).launch {
+            println("Websocket /send-updated-textbox")
+            client.webSocket(
+                method = HttpMethod.Get,
+                host = "127.0.0.1",
+                port = 8080,
+                path = "/send-updated-textbox"
+            ) {
+                for (frame in incoming) {
+                    frame as? Frame.Text ?: continue
+                    val tbJson = frame.readText()
+                    println("Receiving tbJson is: $tbJson")
+                    // Deserialize the JSON string into a list of Sketch objects
+                    val receivedTB: TextBoxData = Json.decodeFromString(tbJson)
+                    println("Received textbox is: ${receivedTB}")
+                    val newTextBox = TextBox(receivedTB, receivedTB.Id, inDelete)
+                    textList.removeIf { it.Id == newTextBox.Id}
+                    textList.add(newTextBox)
+                }
+            }
+        }
         textList.forEach { text -> text.draw() }
     }
 }

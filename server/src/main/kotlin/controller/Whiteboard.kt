@@ -20,6 +20,7 @@ fun Application.configureWhiteboard() {
         val connectedUsers: MutableList<User> = mutableListOf()
         val incomingRects: MutableList<Rectangle> = mutableListOf()
         val incomingDeletedTBId: MutableList<Int> = mutableListOf()
+        val incomingUpdatedTBId: MutableList<TextBox> = mutableListOf()
 
         webSocket("/sketch") {
             for (frame in incoming) {
@@ -113,6 +114,31 @@ fun Application.configureWhiteboard() {
                     val dlIdJson = Json.encodeToString(toBeSentDeletedTBId)
                     send(Frame.Text(dlIdJson))
                     println("Remaining of incomingDeletedTBId: ${dlIdJson}")
+                }
+                delay(10) // Introduce a delay between iterations to allow other coroutines to run
+            }
+        }
+
+        webSocket("/receive-updated-textbox") {
+            for (frame in incoming) {
+                frame as? Frame.Text ?: continue
+                println("receive-textbox has incoming data!")
+                val receivedText = frame.readText()
+                val textbox = Json.decodeFromString<TextBox>(receivedText)
+                println("received this Textbox:${textbox}")
+                updateTextboxPositionById(textbox.Id, textbox.offsetX, textbox.offsetY)
+                incomingUpdatedTBId.add(textbox)
+            }
+        }
+
+        webSocket("/send-updated-textbox"){
+            while (true) {
+                if(incomingTextboxes.isNotEmpty()) {
+                    println("send-textbox is being processed")
+                    val toBeSentTB = incomingTextboxes.removeAt(0)
+                    val tbJson = Json.encodeToString(toBeSentTB)
+                    send(Frame.Text(tbJson))
+                    println("Remaining of incomingTextboxes: ${incomingTextboxes}")
                 }
                 delay(10) // Introduce a delay between iterations to allow other coroutines to run
             }
