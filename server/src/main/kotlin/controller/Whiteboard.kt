@@ -129,21 +129,19 @@ fun Application.configureWhiteboard() {
             for (frame in incoming) {
                 frame as? Frame.Text ?: continue
                 val receivedText = frame.readText()
-                val shapes = Json.decodeFromString<List<Rectangle>>(receivedText)
-                println(shapes)
-                for (s in shapes) {
-                    insertRectangle(s)
-                }
-                incomingRects.addAll(shapes)
+                val r = Json.decodeFromString<Rectangle>(receivedText)
+                insertRectangle(r)
+                incomingRects.add(r)
             }
         }
 
         webSocket("/rects") {
             while (true) {
                 if (incomingRects.isNotEmpty()) {
-                    val shapeJson = Json.encodeToString(incomingRects)
-                    send(Frame.Text(shapeJson))
-                    incomingRects.clear()
+                    val toBeSentRec = incomingRects.removeAt(0)
+                    val rJson = Json.encodeToString(toBeSentRec)
+                    send(Frame.Text(rJson))
+                    println("Remaining of incomingRects: ${incomingRects}")
                 }
                 delay(10) // Introduce a delay between iterations to allow other coroutines to run
             }

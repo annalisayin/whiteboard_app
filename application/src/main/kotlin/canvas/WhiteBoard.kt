@@ -6,9 +6,9 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -17,7 +17,6 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import data.Rectangle
-import data.Shape
 import data.TextBox
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
@@ -36,7 +35,7 @@ import toolbar.ToolSelection
 var socket: WebSocketSession? = null
 
 @Composable
-fun WhiteBoard(initialSketches: List<Sketch>, initialTextboxes: List<TextBox>) {
+fun WhiteBoard(sketches: SnapshotStateList<Sketch>, textList: SnapshotStateList<TextBox>, rectList: SnapshotStateList<Rectangle>) {
     val client = HttpClient(CIO) {
         install(ContentNegotiation) {
             json(Json {
@@ -47,26 +46,8 @@ fun WhiteBoard(initialSketches: List<Sketch>, initialTextboxes: List<TextBox>) {
         install(WebSockets)
     }
 
-    val sketches = remember { mutableStateListOf<Sketch>() }
-    val shapeList = remember { mutableStateListOf<Shape>()}
-    val rectList = remember { mutableStateListOf<Rectangle>()}
-
-//    runBlocking {
-//        try {
-//            val responseRects: List<Rectangle> = Json.decodeFromString(client.get("http://localhost:8080/rects-list").body())
-//            responseRects.forEach { r: Rectangle -> rectList.add(r) }
-//        }
-//        catch (e: Exception) {
-//            println(e)
-//        }
-//    }
-    val textList = remember { mutableStateListOf<TextBox>()}
-    sketches.addAll(initialSketches)
-    textList.addAll(initialTextboxes)
-
 
     val insendingSketches: MutableList<Sketch> = mutableListOf()
-    val insendingRect: MutableList<Rectangle> = mutableListOf()
     val inUsedColor = remember { mutableStateOf(0)}
     val brushSize = remember { mutableStateOf(1)}
     val currentText = remember {mutableStateOf("hello")}
@@ -86,14 +67,11 @@ fun WhiteBoard(initialSketches: List<Sketch>, initialTextboxes: List<TextBox>) {
                 if (currentTool.value == 1) {
                     val newRec =
                         Rectangle(x = tapOffset.x, y = tapOffset.y, color = inUsedColor.value, size = brushSize.value)
-                    shapeList.add(newRec)
                     currentTool.value = -1
                     CoroutineScope(Dispatchers.IO).launch {
                         client.webSocket(method = HttpMethod.Get, host = "127.0.0.1", port = 8080, path = "/rect") {
-                            val shapesList = insendingRect.toList()
-                            val shapesJson = Json.encodeToString(shapesList)
-                            send(Frame.Text(shapesJson))
-                            insendingRect.clear()
+                            val recJson = Json.encodeToString(newRec)
+                            send(Frame.Text(recJson))
                         }
                     }
                     CoroutineScope(Dispatchers.IO).launch {
@@ -103,8 +81,9 @@ fun WhiteBoard(initialSketches: List<Sketch>, initialTextboxes: List<TextBox>) {
                                 val shapeJson = frame.readText()
 
                                 // Deserialize the JSON string into a list of Sketch objects
-                                val responseShape: MutableList<Rectangle> = Json.decodeFromString(shapeJson)
-                                rectList.addAll(responseShape)
+                                val responseShape: Rectangle = Json.decodeFromString(shapeJson)
+                                rectList.add(responseShape)
+                                println("Current recList after receiving is $rectList")
                             }
                         }
                     }
@@ -245,7 +224,7 @@ fun WhiteBoard(initialSketches: List<Sketch>, initialTextboxes: List<TextBox>) {
                 )
             }
         }
-        shapeList.forEach { shape -> shape.draw() }
+//        shapeList.forEach { shape -> shape.draw() }
         rectList.forEach { r -> r.draw() }
         textList.forEach { text -> text.draw() }
     }

@@ -16,6 +16,7 @@ import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import canvas.Sketch
 import canvas.WhiteBoard
+import data.Rectangle
 import data.TextBox
 import io.ktor.client.*
 import io.ktor.client.call.*
@@ -54,6 +55,7 @@ fun main() = application {
     }
     var initialSketches = remember { mutableStateListOf<Sketch>() }
     var initialTextboxes = remember { mutableStateListOf<TextBox>()}
+    var initialRects = remember { mutableStateListOf<Rectangle>()}
     runBlocking {
         try {
             println("Getting all sketches")
@@ -75,6 +77,18 @@ fun main() = application {
             println(e)
         }
     }
+
+    runBlocking {
+        try {
+            println("Getting all rectangles")
+            val responseRects: List<Rectangle> = Json.decodeFromString(client.get("http://localhost:8080/rects-list").body())
+            responseRects.forEach { r: Rectangle -> initialRects.add(r) }
+        }
+        catch (e: Exception) {
+            println(e)
+        }
+    }
+
     val windowState = rememberWindowState(size = DpSize.Unspecified)
     Window(onCloseRequest = ::exitApplication, state = windowState) {
         Column(modifier = Modifier
@@ -82,7 +96,7 @@ fun main() = application {
             .background(Color.LightGray),
             horizontalAlignment = Alignment.CenterHorizontally)
         {
-            WhiteBoard(initialSketches, initialTextboxes)
+            WhiteBoard(initialSketches, initialTextboxes, initialRects)
         }
         //App()
         //Canvas()
