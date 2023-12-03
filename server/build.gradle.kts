@@ -31,6 +31,7 @@ dependencies {
     implementation("io.ktor:ktor-server-websockets:$ktor_version")
     implementation("ch.qos.logback:logback-classic:$logback_version")
     implementation("org.xerial:sqlite-jdbc:3.39.3.0")
+    implementation("org.postgresql:postgresql:42.2.23")
     implementation("io.ktor:ktor-gson:1.6.5")
     implementation("org.jetbrains.exposed", "exposed-core", "0.40.1")
     implementation("org.jetbrains.exposed", "exposed-dao", "0.40.1")

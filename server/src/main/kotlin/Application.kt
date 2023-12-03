@@ -8,14 +8,19 @@ import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.websocket.*
 import models.RectangleModel
 import models.SketchModel
-import models.UserModel
 import models.TBModel
+import models.UserModel
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction
 
 fun connectToDatabase() {
     Database.connect("jdbc:sqlite:whiteboard.db")
+//    val url = "jdbc:postgresql://pg-167c54e4-cs346.a.aivencloud.com:10691/defaultdb?sslmode=require"
+//    val user = "avnadmin"
+//    val password = "AVNS_d5a--ZxRNqu7WNAzEgg"
+//
+//    Database.connect(url, driver = "org.postgresql.Driver", user = user, password = password)
 }
 
 fun main() {
