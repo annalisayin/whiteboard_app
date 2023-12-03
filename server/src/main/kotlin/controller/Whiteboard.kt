@@ -21,6 +21,7 @@ fun Application.configureWhiteboard() {
         val incomingRects: MutableList<Rectangle> = mutableListOf()
         val incomingDeletedTBId: MutableList<Int> = mutableListOf()
         val incomingUpdatedTBId: MutableList<TextBox> = mutableListOf()
+        val incomingClearAllSignal: MutableList<Int> = mutableListOf()
 
         webSocket("/sketch") {
             for (frame in incoming) {
@@ -96,6 +97,36 @@ fun Application.configureWhiteboard() {
             } else {
                 call.respond(HttpStatusCode.BadRequest, "Invalid Id format")
             }
+        }
+
+        webSocket("/clear-whiteboard") {
+            for (frame in incoming) {
+                frame as? Frame.Text ?: continue
+                println("clear-whiteboard has incoming data!")
+                val receivedText = frame.readText()
+                val signal = Json.decodeFromString<Int>(receivedText)
+                println("clear whiteboard signal is:${signal}")
+                deleteAll()
+                incomingClearAllSignal.add(signal)
+            }
+        }
+
+        webSocket("/send-clear-whiteboard-signal"){
+            while (true) {
+                if(incomingClearAllSignal.isNotEmpty()) {
+                    println("send-clear-whiteboard-signal is being processed")
+                    val toBeSentSignal = incomingClearAllSignal.removeAt(0)
+                    val signalJson = Json.encodeToString(toBeSentSignal)
+                    send(Frame.Text(signalJson))
+                    println("Remaining of incomingClearAllSignal: ${incomingClearAllSignal}")
+                }
+                delay(10) // Introduce a delay between iterations to allow other coroutines to run
+            }
+        }
+
+        delete("/delete-all") {
+            deleteAll()
+            call.respond(HttpStatusCode.OK, "Whiteboard is cleared successfully")
         }
 
         webSocket("/receive-deleted-texbox-id") {

@@ -27,6 +27,7 @@ fun ToolSelection(
 //    circleSelected: MutableState<Boolean>,
 //    triangleSelected: MutableState<Boolean>,
     inDelete: MutableState<Boolean>,
+    inClearAll: MutableState<Boolean>,
 ) {
     val focusManager = LocalFocusManager.current
     MaterialTheme {
@@ -45,6 +46,7 @@ fun ToolSelection(
             Brush_tool(inUsedColor, brushSize, currentTool)
             Text_tool(currentText, currentTool)
             Delete_tool(inDelete, currentTool)
+            Clear_all_tool(inClearAll, currentTool)
         }
     }
 }

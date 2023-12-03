@@ -15,7 +15,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import data.Rectangle
 import data.TextBox
@@ -53,12 +52,11 @@ fun WhiteBoard(sketches: SnapshotStateList<Sketch>, textList: SnapshotStateList<
     val inUsedColor = remember { mutableStateOf(0)}
     val brushSize = remember { mutableStateOf(1)}
     val currentText = remember {mutableStateOf("hello")}
-
-    val focusManager = LocalFocusManager.current
+    val inClearAll = remember { mutableStateOf(false) }
 
     val currentTool = remember {mutableStateOf(-1)}
 
-    ToolSelection(currentTool, inUsedColor, brushSize, currentText, inDelete)
+    ToolSelection(currentTool, inUsedColor, brushSize, currentText, inDelete, inClearAll)
 
     Box(modifier = Modifier
         .background(Color.Blue)
@@ -267,6 +265,29 @@ fun WhiteBoard(sketches: SnapshotStateList<Sketch>, textList: SnapshotStateList<
                     val newTextBox = TextBox(receivedTB, receivedTB.Id, inDelete)
                     textList.removeIf { it.Id == newTextBox.Id}
                     textList.add(newTextBox)
+                }
+            }
+        }
+        CoroutineScope(Dispatchers.IO).launch {
+            println("Websocket /send-clear-whiteboard-signal")
+            client.webSocket(
+                method = HttpMethod.Get,
+                host = "127.0.0.1",
+                port = 8080,
+                path = "/send-clear-whiteboard-signal"
+            ) {
+                for (frame in incoming) {
+                    frame as? Frame.Text ?: continue
+                    val signalJson = frame.readText()
+                    println("Receiving signal is: $signalJson")
+                    // Deserialize the JSON string into a list of Sketch objects
+                    val receivedSignal: Int = Json.decodeFromString(signalJson)
+                    println("Received signal is: ${receivedSignal}")
+                    if (receivedSignal == 1) {
+                        rectList.clear()
+                        textList.clear()
+                        sketches.clear()
+                    }
                 }
             }
         }

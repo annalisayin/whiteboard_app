@@ -69,6 +69,8 @@ fun findAllTextboxes(): List<ResultRow> {
 fun deleteAll(): Unit {
     transaction {
         TBModel.deleteAll()
+        SketchModel.deleteAll()
+        RectangleModel.deleteAll()
     }
 }
 
