@@ -6,8 +6,10 @@ import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.websocket.*
+import models.RectangleModel
 import models.SketchModel
 import models.UserModel
+import models.TBModel
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -30,6 +32,8 @@ fun Application.module() {
     transaction {
         SchemaUtils.create(SketchModel)
         SchemaUtils.create(UserModel)
+        SchemaUtils.create(RectangleModel)
+        SchemaUtils.create(TBModel)
     }
     configureWhiteboard()
 }

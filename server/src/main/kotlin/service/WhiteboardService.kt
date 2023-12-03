@@ -1,13 +1,8 @@
 package service
 
-import models.Sketch
-import models.SketchModel
-import models.User
-import models.UserModel
-import org.jetbrains.exposed.sql.ResultRow
-import org.jetbrains.exposed.sql.insertAndGetId
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.selectAll
+import models.*
+import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
 
 fun findAllSketches(): List<ResultRow> {
@@ -33,6 +28,43 @@ fun insertSketch(sketch: Sketch) {
     }
 }
 
+fun insertTextbox(tb: TextBox) {
+    var insertedTextBox = tb
+    transaction {
+        val id = TBModel.insertAndGetId {
+            it[offsetX] = tb.offsetX
+            it[offsetY] = tb.offsetY
+            it[curtext] = tb.curtext
+            it[color] = tb.color
+            it[size] = tb.size
+            it[curId] = -1
+        }
+        insertedTextBox = tb.copy(Id = id.value)
+    }
+}
+
+fun findAllTextboxes(): List<ResultRow> {
+    var textboxes = emptyList<ResultRow>()
+    transaction {
+        textboxes = TBModel
+            .selectAll()
+            .toList()
+    }
+    return textboxes
+}
+
+fun deleteAll(): Unit {
+    transaction {
+        TBModel.deleteAll()
+    }
+}
+
+fun deleteTextBoxById(id: Int): Unit {
+    transaction {
+        TBModel.deleteWhere { curId eq id }
+    }
+}
+
 fun insertUser(user: User) {
     transaction {
         val id = UserModel.insertAndGetId {
@@ -49,4 +81,25 @@ fun findAllUsers(): List<ResultRow> {
             .toList()
     }
     return users
+}
+
+fun findAllRects(): List<ResultRow> {
+    var shapes = emptyList<ResultRow>()
+    transaction {
+        shapes = RectangleModel
+            .selectAll()
+            .toList()
+    }
+    return shapes
+}
+
+fun insertRectangle(s: Rectangle) {
+    transaction {
+        val id = RectangleModel.insertAndGetId {
+            it[x] = s.x
+            it[y] = s.y
+            it[color] = s.color
+            it[size] = s.size
+        }
+    }
 }

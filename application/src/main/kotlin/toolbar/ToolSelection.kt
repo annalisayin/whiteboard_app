@@ -14,7 +14,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
-import data.User
 
 @Composable
 fun ToolSelection(
@@ -27,7 +26,7 @@ fun ToolSelection(
 //    rectangleSelected: MutableState<Boolean>,
 //    circleSelected: MutableState<Boolean>,
 //    triangleSelected: MutableState<Boolean>,
-//    deleteObjects: MutableState<Boolean>,
+    inDelete: MutableState<Boolean>,
 ) {
     val focusManager = LocalFocusManager.current
     MaterialTheme {
