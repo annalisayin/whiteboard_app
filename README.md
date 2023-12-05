@@ -14,4 +14,8 @@ Run this command to run the docker image for the server: docker run -d -p 8080:8
 ##  To generate JAR file for the server:
 https://www.jetbrains.com/help/idea/compiling-applications.html#package_into_jar
 
+
+## To run the app:
+After running the server from the Docker image, just run the application created from the installer.
+
 # Diagram
