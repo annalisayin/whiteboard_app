@@ -1,7 +1,7 @@
 # CS346-project-fall-2023
 
 ## Wiki page
-https://git.uwaterloo.ca/k4tieu/cs346-project-fall-2023/-/wikis/Project-Proposal
+https://git.uwaterloo.ca/k4tieu/cs346-project-fall-2023/-/wikis
 
 ## To download the application:
 Link to installer: https://git.uwaterloo.ca/k4tieu/cs346-project-fall-2023/-/tree/main/application_installer?ref_type=heads
