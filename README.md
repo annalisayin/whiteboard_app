@@ -3,6 +3,9 @@
 ## Wiki page
 https://git.uwaterloo.ca/k4tieu/cs346-project-fall-2023/-/wikis
 
+# Diagram
+https://git.uwaterloo.ca/k4tieu/cs346-project-fall-2023/-/wikis/Design
+
 ## To download the application:
 Link to installer: https://git.uwaterloo.ca/k4tieu/cs346-project-fall-2023/-/tree/main/application_installer?ref_type=heads
 
@@ -246,9 +249,4 @@ Actions
 - Wrapping up final details and code details
 - Making sure all requirements for final submissions are there and dividing up remaining tasks
 
-
-
-
-# Diagram
-[](https://git.uwaterloo.ca/k4tieu/cs346-project-fall-2023/-/wikis/Design)
 
