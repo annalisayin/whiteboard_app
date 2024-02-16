@@ -1,3 +1,5 @@
+## Collaborative Whiteboard Group Project App
+
 ## Critical Features
 Create designs on a whiteboard with a variety of tools (e.g. pen, shapes, lines, eraser, etc.)
 Ability to connect designs and add text to a large canvas
